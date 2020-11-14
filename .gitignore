@@ -1,0 +1,12 @@
+# Mac
+.DS_Store
+
+# Packages
+__pycache__
+
+# VSCode
+.vscode/
+
+# ./sample-apps/run_sample.sh
+sample-apps/manual-instrumentation/flask/opentelemetry-python-contrib/
+sample-apps/manual-instrumentation/flask/opentelemetry-python-core/

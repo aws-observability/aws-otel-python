@@ -1,0 +1,14 @@
+boto3
+requests==2.23.0
+Flask==1.1.2
+
+./opentelemetry-python-core/opentelemetry-api
+./opentelemetry-python-contrib/sdk-extension/opentelemetry-sdk-extension-aws
+./opentelemetry-python-core/opentelemetry-sdk
+./opentelemetry-python-core/opentelemetry-instrumentation
+./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-botocore
+./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-requests
+./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-wsgi
+./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-flask
+./opentelemetry-python-core/opentelemetry-proto
+./opentelemetry-python-core/exporter/opentelemetry-exporter-otlp

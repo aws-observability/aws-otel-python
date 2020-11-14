@@ -1,0 +1,72 @@
+name: Integration Testing
+on: push
+
+jobs:
+  publish_apps:
+    name: Publish and Test Apps
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app-platform: [ flask ]
+        instrumentation-type: [ auto, manual ]
+    env:
+      APP_PATH: sample-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          repository: open-telemetry/opentelemetry-python
+          path: ${{ env.APP_PATH }}/opentelemetry-python-core
+      - uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type }} == manual
+        with:
+          repository: open-telemetry/opentelemetry-python-contrib
+          path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build ${{ matrix.app-platform }} App Docker Image
+        run: docker build --tag "${{ steps.login-ecr.outputs.registry }}/aws-observability/${{ matrix.instrumentation-type }}-instrumentation/${{ matrix.app-platform }}:${{ github.sha }}" ${{ env.APP_PATH }}
+      - name: Push ${{ matrix.instrumentation-type }}-instrumentation ${{ matrix.app-platform }} App to Amazon ECR
+        run: |
+          docker images
+          docker push ${{ steps.login-ecr.outputs.registry }}/aws-observability/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}:${{ github.sha }}
+      - name: Setup and Run OTel Collector
+        run: |
+          docker-compose -f .github/collector/docker-compose.yml up &
+        env:
+          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Run ${{ matrix.app-platform }} App with ${{ matrix.instrumentation-type }} Instrumentation
+        run: |
+          docker run -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+                     -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                     -e AWS_REGION=us-west-2 \
+                     -e INSTANCE_ID=${{ github.run_id }}-${{ github.run_number }} \
+                     -e LISTEN_ADDRESS=0.0.0.0:8080 \
+                     -e OTEL_EXPORTER_OTLP_ENDPOINT=172.17.0.1:55680 \
+                     -e OTEL_EXPORTER_OTLP_INSECURE=True \
+                     -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/aws-observability/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}:${{ github.sha }} &
+      - name: Checkout aws otel test framework @ branch `terraform`
+        uses: actions/checkout@v2
+        with:
+          repository: aws-observability/aws-otel-test-framework
+          ref: terraform
+          path: aws-otel-test-framework
+      - name: Run testing suite
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-west-2
+        working-directory: aws-otel-test-framework
+        # TODO: (enowell) Once metrics are updated in OTel Python, update this
+        # to also validate metrics integration
+        run: |
+          ./gradlew :validator:run --stacktrace --args='-c default-otel-trace-validation.yml --endpoint http://127.0.0.1:8080 --metric-namespace default -t ${{ github.run_id }}-${{ github.run_number }}'
