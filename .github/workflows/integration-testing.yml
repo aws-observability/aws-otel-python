@@ -11,7 +11,7 @@ jobs:
         app-platform: [ flask ]
         instrumentation-type: [ auto, manual ]
     env:
-      APP_PATH: sample-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
+      APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/checkout@v2
