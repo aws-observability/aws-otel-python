@@ -24,7 +24,7 @@ from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     AwsXRayFormat,
 )
 
-# Sample App
+# Integration Test App
 
 from create_flask_app import app, get_flask_app_run_args
 
@@ -37,7 +37,7 @@ propagators.set_global_textmap(AwsXRayFormat())
 
 # OTLP Exporter is configured through environment variables:
 # - OTEL_EXPORTER_OTLP_ENDPOINT
-# - OTEL_EXPORTER_OTLP_INSECURE
+# - OTEL_EXPORTER_OTLP_CERTIFICATE
 otlp_exporter = OTLPSpanExporter()
 span_processor = BatchExportSpanProcessor(otlp_exporter)
 trace.set_tracer_provider(
@@ -51,7 +51,6 @@ trace.set_tracer_provider(
 BotocoreInstrumentor().instrument()
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument()
-
 
 if __name__ == "__main__":
     app.run(**get_flask_app_run_args())

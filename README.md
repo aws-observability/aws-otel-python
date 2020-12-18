@@ -23,14 +23,14 @@ Check out the links below for information on getting started with ADOT Python SD
 
 
 
-### Sample application - Auto instrumentation
+### Applications for integration testing - Auto instrumentation
 
-See the [automatic sample app README.md](sample-apps/auto-instrumentation/flask/README.md) for setup instructions.
+See an app used for [integration testing with automatic instrumentation README.md](integration-test-apps/auto-instrumentation/flask/README.md) for setup instructions.
 
 
-### Sample application - Manual instrumentation
+### Applications for integration testing - Manual instrumentation
 
-See the [manual sample app README.md](sample-apps/manual-instrumentation/flask/README.md) for setup instructions.
+See an app used for [integration testing with manual instrumentation README.md](integration-test-apps/manual-instrumentation/flask/README.md) for setup instructions.
 
 
 ## Requirements

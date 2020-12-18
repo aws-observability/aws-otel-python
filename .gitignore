@@ -7,6 +7,6 @@ __pycache__
 # VSCode
 .vscode/
 
-# ./sample-apps/run_sample.sh
-sample-apps/manual-instrumentation/flask/opentelemetry-python-contrib/
-sample-apps/manual-instrumentation/flask/opentelemetry-python-core/
+# ./integration-test-apps/run_integration_test_app.sh
+integration-test-apps/manual-instrumentation/flask/opentelemetry-python-contrib/
+integration-test-apps/manual-instrumentation/flask/opentelemetry-python-core/

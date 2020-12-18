@@ -11,7 +11,7 @@ from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     AwsXRayFormat,
 )
 
-# Sample App
+# Integration Test App
 
 from create_flask_app import app, get_flask_app_run_args
 
