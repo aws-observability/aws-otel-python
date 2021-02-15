@@ -13,7 +13,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ mainline ]
+    branches: [ main ]
 
 
 jobs:
