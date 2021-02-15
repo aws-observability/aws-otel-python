@@ -23,50 +23,43 @@ jobs:
         with:
           repository: open-telemetry/opentelemetry-python-contrib
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      - name: Build ${{ matrix.app-platform }} App Docker Image
-        run: docker build --tag "${{ steps.login-ecr.outputs.registry }}/aws-observability/${{ matrix.instrumentation-type }}-instrumentation/${{ matrix.app-platform }}:${{ github.sha }}" ${{ env.APP_PATH }}
-      - name: Push ${{ matrix.instrumentation-type }}-instrumentation ${{ matrix.app-platform }} App to Amazon ECR
-        run: |
-          docker images
-          docker push ${{ steps.login-ecr.outputs.registry }}/aws-observability/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}:${{ github.sha }}
-      - name: Setup and Run OTel Collector
-        run: |
-          docker-compose -f .github/collector/docker-compose.yml up &
-        env:
-          ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      - name: Run ${{ matrix.app-platform }} App with ${{ matrix.instrumentation-type }} Instrumentation
-        run: |
-          docker run -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-                     -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-                     -e AWS_REGION=us-west-2 \
-                     -e INSTANCE_ID=${{ github.run_id }}-${{ github.run_number }} \
-                     -e LISTEN_ADDRESS=0.0.0.0:8080 \
-                     -e OTEL_EXPORTER_OTLP_ENDPOINT=172.17.0.1:55680 \
-                     -e OTEL_EXPORTER_OTLP_INSECURE=True \
-                     -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/aws-observability/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}:${{ github.sha }} &
-      - name: Checkout aws otel test framework @ branch `terraform`
-        uses: actions/checkout@v2
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 1200
+          aws-region: us-east-1
+      - name: Login to ECR
+        uses: docker/login-action@v1
         with:
-          repository: aws-observability/aws-otel-test-framework
-          ref: terraform
-          path: aws-otel-test-framework
-      - name: Run testing suite
+          registry: public.ecr.aws
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Build docker image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ${{ env.APP_PATH }}
+          tags: |
+            public.ecr.aws/aws-otel-test/python-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}:${{ github.sha }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Run test containers
+        run: docker-compose up --abort-on-container-exit
+        working-directory: .github/collector
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-west-2
-        working-directory: aws-otel-test-framework
-        # TODO: (enowell) Once metrics are updated in OTel Python, update this
-        # to also validate metrics integration
-        run: |
-          ./gradlew :validator:run --stacktrace --args='-c default-otel-trace-validation.yml --endpoint http://127.0.0.1:8080 --metric-namespace default -t ${{ github.run_id }}-${{ github.run_number }}'
+          INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
+          LISTEN_ADDRESS: 0.0.0.0:8080
+          APP_IMAGE: public.ecr.aws/aws-otel-test/python-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}:${{ github.sha }}
+          # TODO: (enowell) Once metrics are updated in OTel Python, update this
+          # to also validate metrics integration
+          VALIDATOR_COMMAND: -c default-otel-trace-validation.yml --endpoint http://app:8080 --metric-namespace default -t ${{ github.run_id }}-${{ github.run_number }}
