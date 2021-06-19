@@ -15,7 +15,8 @@ from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     TRACE_ID_VERSION,
 )
 
-from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
+# NOTE: (NathanielRN) Metrics is on hold until 1.50 release
+# from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
 
 # Constants
 
@@ -52,22 +53,22 @@ def mimicPayloadSize():
 
 @app.after_request
 def after_request_func(response):
-    if request.path == "/outgoing-http-call":
-        apiBytesSentCounter.add(
-            response.calculate_content_length() + mimicPayloadSize(),
-            {
-                DIMENSION_API_NAME: request.path,
-                DIMENSION_STATUS_CODE: response.status_code,
-            },
-        )
+    # if request.path == "/outgoing-http-call":
+    #     apiBytesSentCounter.add(
+    #         response.calculate_content_length() + mimicPayloadSize(),
+    #         {
+    #             DIMENSION_API_NAME: request.path,
+    #             DIMENSION_STATUS_CODE: response.status_code,
+    #         },
+    #     )
 
-        apiLatencyRecorder.record(
-            int(time.time() * 1_000) - session[REQUEST_START_TIME],
-            {
-                DIMENSION_API_NAME: request.path,
-                DIMENSION_STATUS_CODE: response.status_code,
-            },
-        )
+    #     apiLatencyRecorder.record(
+    #         int(time.time() * 1_000) - session[REQUEST_START_TIME],
+    #         {
+    #             DIMENSION_API_NAME: request.path,
+    #             DIMENSION_STATUS_CODE: response.status_code,
+    #         },
+    #     )
 
     return response
 

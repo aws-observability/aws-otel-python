@@ -5,10 +5,13 @@ Flask==1.1.2
 ./opentelemetry-python-core/opentelemetry-api
 ./opentelemetry-python-contrib/sdk-extension/opentelemetry-sdk-extension-aws
 ./opentelemetry-python-core/opentelemetry-sdk
-./opentelemetry-python-core/opentelemetry-instrumentation
+./opentelemetry-python-contrib/opentelemetry-instrumentation
+./opentelemetry-python-core/opentelemetry-semantic-conventions
 ./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-botocore
 ./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-requests
 ./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-wsgi
+./opentelemetry-python-contrib/util/opentelemetry-util-http
 ./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-flask
 ./opentelemetry-python-core/opentelemetry-proto
+./opentelemetry-python-core/exporter/opentelemetry-exporter-otlp-proto-grpc
 ./opentelemetry-python-core/exporter/opentelemetry-exporter-otlp

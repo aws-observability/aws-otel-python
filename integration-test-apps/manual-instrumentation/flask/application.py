@@ -3,8 +3,8 @@
 
 # OTel Imports
 
-from opentelemetry import propagators, trace
-from opentelemetry.exporter.otlp.trace_exporter import OTLPSpanExporter
+from opentelemetry import propagate, trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 # Instrumentation Libraries
 
@@ -15,11 +15,11 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 # OpenTelemetry SDK Components
 
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 # AWS X-Ray SDK Extension Components
 
-from opentelemetry.sdk.extension.aws.trace import AwsXRayIdsGenerator
+from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
 from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     AwsXRayFormat,
 )
@@ -31,7 +31,7 @@ from create_flask_app import app, get_flask_app_run_args
 # Setup AWS X-Ray Propagator
 
 # Propagators can be set using environment variable: OTEL_PROPAGATORS = aws_xray
-propagators.set_global_textmap(AwsXRayFormat())
+propagate.set_global_textmap(AwsXRayFormat())
 
 # Setup Tracer
 
@@ -39,10 +39,10 @@ propagators.set_global_textmap(AwsXRayFormat())
 # - OTEL_EXPORTER_OTLP_ENDPOINT
 # - OTEL_EXPORTER_OTLP_CERTIFICATE
 otlp_exporter = OTLPSpanExporter()
-span_processor = BatchExportSpanProcessor(otlp_exporter)
+span_processor = BatchSpanProcessor(otlp_exporter)
 trace.set_tracer_provider(
     TracerProvider(
-        active_span_processor=span_processor, ids_generator=AwsXRayIdsGenerator()
+        active_span_processor=span_processor, id_generator=AwsXRayIdGenerator()
     )
 )
 

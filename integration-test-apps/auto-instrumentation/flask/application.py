@@ -3,7 +3,7 @@
 
 # OTel Imports
 
-from opentelemetry import propagators
+from opentelemetry import propagate
 
 # AWS X-Ray SDK Extension Components
 
@@ -18,7 +18,7 @@ from create_flask_app import app, get_flask_app_run_args
 # Setup AWS X-Ray Propagator
 
 # Propagators can be set using environment variable: OTEL_PROPAGATORS = aws_xray
-propagators.set_global_textmap(AwsXRayFormat())
+propagate.set_global_textmap(AwsXRayFormat())
 
 if __name__ == "__main__":
     app.run(**get_flask_app_run_args())
