@@ -1,6 +1,8 @@
 boto3
 requests
-Flask
+# OTel Python instrumentation package needs to indicate support for Flask~=2.0
+# https://github.com/open-telemetry/opentelemetry-python-contrib/pull/545
+flask~=1.0
 
 opentelemetry-api
 opentelemetry-sdk
