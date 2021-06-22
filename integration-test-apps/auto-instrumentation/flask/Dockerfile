@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.9
 
 WORKDIR /app
 
@@ -10,4 +10,6 @@ RUN opentelemetry-bootstrap --action=install
 
 ENV HOME=/
 
-CMD opentelemetry-instrument -e otlp --ids-generator aws_xray python application.py
+ENV OTEL_RESOURCE_ATTRIBUTES='service.name=aws-sample-auto-app'
+
+CMD opentelemetry-instrument --trace-exporter otlp --id-generator aws_xray python3 application.py

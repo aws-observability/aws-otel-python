@@ -15,7 +15,9 @@ from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     TRACE_ID_VERSION,
 )
 
-from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
+# NOTE: (NathanielRN) Metrics is on hold until 1.50 release
+# See https://github.com/open-telemetry/opentelemetry-python/issues/1547#issuecomment-768592654
+# from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
 
 # Constants
 
@@ -52,22 +54,22 @@ def mimicPayloadSize():
 
 @app.after_request
 def after_request_func(response):
-    if request.path == "/outgoing-http-call":
-        apiBytesSentCounter.add(
-            response.calculate_content_length() + mimicPayloadSize(),
-            {
-                DIMENSION_API_NAME: request.path,
-                DIMENSION_STATUS_CODE: response.status_code,
-            },
-        )
+    # if request.path == "/outgoing-http-call":
+    #     apiBytesSentCounter.add(
+    #         response.calculate_content_length() + mimicPayloadSize(),
+    #         {
+    #             DIMENSION_API_NAME: request.path,
+    #             DIMENSION_STATUS_CODE: response.status_code,
+    #         },
+    #     )
 
-        apiLatencyRecorder.record(
-            int(time.time() * 1_000) - session[REQUEST_START_TIME],
-            {
-                DIMENSION_API_NAME: request.path,
-                DIMENSION_STATUS_CODE: response.status_code,
-            },
-        )
+    #     apiLatencyRecorder.record(
+    #         int(time.time() * 1_000) - session[REQUEST_START_TIME],
+    #         {
+    #             DIMENSION_API_NAME: request.path,
+    #             DIMENSION_STATUS_CODE: response.status_code,
+    #         },
+    #     )
 
     return response
 
@@ -105,4 +107,8 @@ def root_endpoint():
 
 def get_flask_app_run_args():
     host, port = os.environ["LISTEN_ADDRESS"].split(":")
-    return {"host": host, "port": int(port), "debug": True}
+    # NOTE: (NathanielRN) The auto-reloader of the Flask app in debug=True mode
+    # will remove automatically-introduced instrumentation! Filing issue
+    # upstream:
+    # https://github.com/open-telemetry/opentelemetry-python-contrib/issues/546
+    return {"host": host, "port": int(port), "debug": False}
