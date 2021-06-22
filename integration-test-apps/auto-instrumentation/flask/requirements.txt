@@ -7,6 +7,5 @@ flask~=1.0
 opentelemetry-api
 opentelemetry-sdk
 opentelemetry-instrumentation
-opentelemetry-distro
-opentelemetry-exporter-otlp
+opentelemetry-distro[otlp] # also installs opentelemetry-exporter-otlp
 opentelemetry-sdk-extension-aws

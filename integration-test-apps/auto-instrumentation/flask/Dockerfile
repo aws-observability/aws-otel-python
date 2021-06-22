@@ -12,4 +12,4 @@ ENV HOME=/
 
 ENV OTEL_RESOURCE_ATTRIBUTES='service.name=aws-sample-auto-app'
 
-CMD opentelemetry-instrument --trace-exporter otlp --id-generator aws_xray python3 application.py
+CMD OTEL_PROPAGATORS=aws_xray opentelemetry-instrument --id-generator aws_xray python3 application.py
