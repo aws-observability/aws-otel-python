@@ -16,6 +16,7 @@ from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
 )
 
 # NOTE: (NathanielRN) Metrics is on hold until 1.50 release
+# See https://github.com/open-telemetry/opentelemetry-python/issues/1547#issuecomment-768592654
 # from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
 
 # Constants
