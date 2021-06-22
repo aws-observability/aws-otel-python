@@ -111,4 +111,9 @@ def get_flask_app_run_args():
     # will remove automatically-introduced instrumentation! Filing issue
     # upstream:
     # https://github.com/open-telemetry/opentelemetry-python-contrib/issues/546
-    return {"host": host, "port": int(port), "debug": False}
+    return {
+        "host": host,
+        "port": int(port),
+        "debug": True,
+        "use_reloader": False,
+    }
