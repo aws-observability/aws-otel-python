@@ -108,5 +108,6 @@ def get_flask_app_run_args():
     host, port = os.environ["LISTEN_ADDRESS"].split(":")
     # NOTE: (NathanielRN) The auto-reloader of the Flask app in debug=True mode
     # will remove automatically-introduced instrumentation! Filing issue
-    # upstream #TBD.
+    # upstream:
+    # https://github.com/open-telemetry/opentelemetry-python-contrib/issues/546
     return {"host": host, "port": int(port), "debug": False}
