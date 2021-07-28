@@ -30,7 +30,7 @@ from create_flask_app import app, get_flask_app_run_args
 
 # Setup AWS X-Ray Propagator
 
-# Propagators can be set using environment variable: OTEL_PROPAGATORS = aws_xray
+# Propagators can be set using environment variable: OTEL_PROPAGATORS = xray
 propagate.set_global_textmap(AwsXRayFormat())
 
 # Setup Tracer

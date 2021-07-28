@@ -1,11 +1,6 @@
 boto3
 requests
-# OTel Python instrumentation package needs to indicate support for Flask~=2.0
-# https://github.com/open-telemetry/opentelemetry-python-contrib/pull/545
-flask~=1.0
+flask
 
-opentelemetry-api
-opentelemetry-sdk
-opentelemetry-instrumentation
 opentelemetry-distro[otlp] # also installs opentelemetry-exporter-otlp
 opentelemetry-sdk-extension-aws
