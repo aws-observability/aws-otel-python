@@ -62,6 +62,6 @@ jobs:
           INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
           LISTEN_ADDRESS: 0.0.0.0:8080
           APP_IMAGE: public.ecr.aws/aws-otel-test/python-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}:${{ github.sha }}
-          # TODO: (enowell) Once metrics are updated in OTel Python, update this
+          # TODO: (NathanielRN) Once metrics are updated in OTel Python, update this
           # to also validate metrics integration
           VALIDATOR_COMMAND: -c default-otel-trace-validation.yml --endpoint http://app:8080 --metric-namespace default -t ${{ github.run_id }}-${{ github.run_number }}

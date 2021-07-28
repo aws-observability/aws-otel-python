@@ -12,4 +12,4 @@ ENV HOME=/
 
 ENV OTEL_RESOURCE_ATTRIBUTES='service.name=aws-sample-auto-app'
 
-CMD OTEL_PROPAGATORS=aws_xray opentelemetry-instrument --id-generator aws_xray python3 application.py
+CMD OTEL_PROPAGATORS=xray OTEL_PYTHON_ID_GENERATOR=xray opentelemetry-instrument python3 application.py
