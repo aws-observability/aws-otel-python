@@ -1,7 +1,7 @@
 name: Integration Testing
 on:
   push:
-    branches: [ main ]
+    branches: [ main, bhautikpip-patch-1 ]
 
 jobs:
   publish_apps:
