@@ -1,0 +1,47 @@
+[
+    {
+        "Id": "virtual_memory_raw",
+        "MetricStat": {
+            "Metric": {
+                "Namespace": "NathanielRN/aws-otel-python-soaking-tests-demo/soak-tests-",
+                "MetricName": "process.memory.virtual_usage",
+                "Dimensions": [
+                    {
+                        "Name": "process.command_line",
+                        "Value": "/usr/local/bin/python3 application.py"
+                    }
+                ]
+            },
+            "Stat": "Sum",
+            "Period": 600
+        },
+        "Label": "Virtual Memory",
+        "ReturnData": false
+    },
+    {
+        "Id": "physical_memory_raw",
+        "MetricStat": {
+            "Metric": {
+                "Namespace": "NathanielRN/aws-otel-python-soaking-tests-demo/soak-tests-",
+                "MetricName": "process.memory.physical_usage",
+                "Dimensions": [
+                    {
+                        "Name": "process.command_line",
+                        "Value": "/usr/local/bin/python3 application.py"
+                    }
+                ]
+            },
+            "Stat": "Sum",
+            "Period": 600
+        },
+        "Label": "Physical Memory",
+        "ReturnData": false
+    },
+    {
+        "Id": "total_memory_expr",
+        "Expression": "SUM([virtual_memory_raw, physical_memory_raw])",
+        "Label": "Total Memory",
+        "ReturnData": true,
+        "Period": 600
+    }
+]
