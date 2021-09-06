@@ -1,0 +1,133 @@
+version: "3.7"
+services:
+  otel:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: --config /otel-collector/collector-config.yml --log-level debug
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS
+      - LOG_GROUP_NAME
+      - LOGS_NAMESPACE
+      - LOG_STREAM_NAME
+      - PROCESS_COMMAND_LINE
+      - PROCESS_EXECUTABLE_NAME
+    volumes:
+      - ./otel-collector:/otel-collector
+      - type: bind
+        source: /proc
+        target: /proc
+    ports:
+      - '4317:4317'
+    user: "${UID}:${GID}"
+
+  app:
+    image: ${APP_IMAGE}
+    environment:
+      - INSTANCE_ID
+      - LISTEN_ADDRESS
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_DEFAULT_REGION=us-west-2
+      - SAMPLE_APP_LOG_LEVEL=ERROR
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=aws-otel-integ-test
+      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel:4317
+    ports:
+      - '8080:8080'
+
+  load-generator:
+    build:
+      context: ./load-generator
+    environment:
+      - SOAK_TEST_DURATION_IN_MINUTES
+    depends_on:
+      - otel
+      - app
+
+  alarms-poller:
+    build:
+      context: ./alarms-poller
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_DEFAULT_REGION=us-west-2
+      - HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - load-generator
+
+# # To run on Cloud Desktop:
+# #
+# version: "3.7"
+# services:
+#   otel:
+#     image: otel/opentelemetry-collector-contrib:latest
+#     command: --config /otel-collector/collector-config.yml --log-level debug
+#     environment:
+#       # - AWS_ACCESS_KEY_ID
+#       # - AWS_SECRET_ACCESS_KEY
+#       # - AWS_SESSION_TOKEN
+#       - HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS=5
+#       - LOG_GROUP_NAME=test
+#       - LOGS_NAMESPACE=test
+#       - LOG_STREAM_NAME=test
+#       - PROCESS_COMMAND_LINE="/usr/local/bin/python3 application.py"
+#       - PROCESS_EXECUTABLE_NAME=python3
+#     volumes:
+#       - $HOME/.aws:/.aws # new
+#       - ./otel-collector:/otel-collector
+#       - type: bind
+#         source: /proc
+#         target: /proc
+#     ports:
+#       - '4317:4317'
+#     privileged: true # new
+#     user: "0:${GID}" # new
+#     # user: "${UID}:${GID}"
+
+#   app:
+#     # image: ${APP_IMAGE}
+#     image: ghcr.io/nathanielrn/aws-otel-python-soaking-tests-demo-sample-app-flask-auto-c7be3a7aef2324040f60b8b66d62c09819d046b2:main # new
+#     environment:
+#       - INSTANCE_ID=test
+#       - LISTEN_ADDRESS=0.0.0.0:8080
+#       # - AWS_ACCESS_KEY_ID
+#       # - AWS_SECRET_ACCESS_KEY
+#       # - AWS_SESSION_TOKEN
+#       # - AWS_DEFAULT_REGION=us-west-2
+#       - SAMPLE_APP_LOG_LEVEL=ERROR
+#       - OTEL_RESOURCE_ATTRIBUTES=service.name=aws-otel-integ-test
+#       - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel:4317
+#     volumes:
+#       - $HOME/.aws:/app/.aws # new
+#     ports:
+#       - '8080:8080'
+
+#   load-generator:
+#     build:
+#       context: ./load-generator
+#     # environment:
+#     #   - SOAK_TEST_DURATION_IN_MINUTES
+#     command: hey -z 30s http://app:8080/outgoing-http-call # new
+#     depends_on:
+#       - otel
+#       - app
+
+#   alarms-poller:
+#     build:
+#       context: ./alarms-poller
+#     environment:
+#       # - AWS_ACCESS_KEY_ID
+#       # - AWS_SECRET_ACCESS_KEY
+#       # - AWS_SESSION_TOKEN
+#       - AWS_DEFAULT_REGION=us-west-2
+#       - HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS=5
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - $HOME/.aws:/root/.aws # new
+#     depends_on:
+#       - load-generator

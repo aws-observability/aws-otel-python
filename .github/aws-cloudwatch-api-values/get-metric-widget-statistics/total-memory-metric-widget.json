@@ -1,0 +1,57 @@
+{
+    "metrics": [
+        [
+            "<LOGS_NAMESPACE>",
+            "process.memory.virtual_usage",
+            "process.command_line",
+            "<PROCESS_COMMAND_LINE_DIMENSION_VALUE>",
+            {
+                "id": "m2",
+                "label": "Virtual Memory",
+                "color": "#ff7f0e"
+            }
+        ],
+        [
+            ".",
+            "process.memory.physical_usage",
+            ".",
+            ".",
+            {
+                "id": "m1",
+                "label": "Physical Memory",
+                "color": "#2ca02c"
+            }
+        ],
+        [
+            {
+                "expression": "SUM(METRICS())",
+                "label": "Total Memory",
+                "id": "e1",
+                "color": "#1f77b4"
+            }
+        ],
+        [
+            {
+                "expression": "TIME_SERIES(<TOTAL_MEMORY_THRESHOLD>)",
+                "label": "Total Memory Threshold",
+                "id": "e2",
+                "color": "#d62728"
+            }
+        ]
+    ],
+    "view": "timeSeries",
+    "stacked": false,
+    "stat": "Sum",
+    "period": <METRIC_PERIOD>,
+    "title": "Process Memory Usage",
+    "yAxis": {
+        "left": {
+            "showUnits": true
+        }
+    },
+    "liveData": false,
+    "width": 2043,
+    "height": 250,
+    "start": "-PT<SOAK_TEST_DURATION_IN_MINUTES>M",
+    "end": "P0D"
+}

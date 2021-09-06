@@ -1,0 +1,47 @@
+{
+    "metrics": [
+        [
+            "<LOGS_NAMESPACE>",
+            "process.cpu.time",
+            "process.command_line",
+            "<PROCESS_COMMAND_LINE_DIMENSION_VALUE>",
+            {
+                "id": "m1",
+                "label": "CPU Time Raw",
+                "visible": false
+            }
+        ],
+        [
+            {
+                "expression": "m1/PERIOD(m1)/<NUM_OF_CPUS>*100",
+                "id": "e1",
+                "label": "CPU Load Percentage for <NUM_OF_CPUS> CPUs",
+                "color": "#1f77b4"
+            }
+        ],
+        [
+            {
+                "expression": "TIME_SERIES(<CPU_LOAD_THRESHOLD>)",
+                "label": "CPU Threshold",
+                "id": "e2",
+                "color": "#d62728"
+            }
+        ]
+    ],
+    "view": "timeSeries",
+    "stacked": false,
+    "stat": "Sum",
+    "period": <METRIC_PERIOD>,
+    "title": "Process CPU Load Percentage for <NUM_OF_CPUS> CPUs",
+    "yAxis": {
+        "left": {
+            "label": "Percentage",
+            "showUnits": false
+        }
+    },
+    "liveData": false,
+    "width": 2043,
+    "height": 250,
+    "start": "-PT<SOAK_TEST_DURATION_IN_MINUTES>M",
+    "end": "P0D"
+}
