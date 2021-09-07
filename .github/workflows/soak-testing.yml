@@ -1,7 +1,7 @@
 # Pre-requisites:
 # - AWS Account with correct permissions
 # - `gh-pages` branch
-# - LOGS_NAMESPACE? + LOGS_GROUP
+# - AWS Account needs to add the LOGS_GROUP defined below
 
 name: Soak Testing
 on:
@@ -14,14 +14,19 @@ env:
   PROCESS_COMMAND_LINE: /usr/local/bin/python3 application.py
   PROCESS_EXECUTABLE_NAME: python3
   # - Every language must also set the path for the sample-app in the `Build and Push Docker image` step.
+  #   For example, Python is uses this path for it's sample-app context:
+  #   `context: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}`
+
   # Global Env Vars
   AWS_REGION: us-west-2
-  SOAK_TEST_DURATION_IN_MINUTES: 300
-  HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS: 600
+  TEST_DURATION_MINUTES: 300
+  HOSTMETRICS_INTERVAL_SECS: 600
   CPU_LOAD_THRESHOLD: 75
   TOTAL_MEMORY_THRESHOLD: 1610612736
-  # Add this?
-  # RATE: TPS
+  # TODO: We might be able to adapt the "Soak Tests" to be "Overhead Tests". This means monitoring the Sample App's
+  # performance using high levels of TPS for the Load Generator over a shorter period of testing time.
+  # For example: https://github.com/aws-observability/aws-otel-collector/blob/main/docs/performance_model.md
+  # THROUGHPUT_PER_SECOND: TBD?
 
 jobs:
   test_apps_and_publish_results:
@@ -41,7 +46,8 @@ jobs:
       IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
     steps:
       - name: Configure Soak Test environment variables
-        # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`?
+        # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
+        # which we probably will not do?).
         run: >-
           echo "LOGS_NAMESPACE=${{ github.repository }}/soak-tests" >> $GITHUB_ENV;
           echo "NUM_OF_CPUS=$(nproc --all)" >> $GITHUB_ENV;
@@ -66,7 +72,14 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ghcr.io/${{ github.repository }}-${{ env.IMAGE_SUFFIX }}
-      # TODO: Could we just build in `docker-compose` build/context without publishing?
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+      # TODO: Instead of building, publishing, and pulling a Sample App Docker IMage in `docker-compose`. Could we
+      # just build the image in `docker-compose` directly using `build/context`? We would lose the public Docker Image
+      # but we would avoid polluting the published packages and anyone could build from the commit if they wanted to.
       - name: Build and Push Docker image
         uses: docker/build-push-action@v2
         with:
@@ -88,7 +101,7 @@ jobs:
           do
             echo "$(
               cat ./.github/aws-cloudwatch-api-values/get-metric-data/$metric_kind-metric-data-query.json |
-              sed -e "s/<METRIC_PERIOD>/${{ env.HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS }}/g" \
+              sed -e "s/<METRIC_PERIOD>/${{ env.HOSTMETRICS_INTERVAL_SECS }}/g" \
                   -e "s/<NUM_OF_CPUS>/$NUM_OF_CPUS/g" \
                   -e "s/<LOGS_NAMESPACE>/$(echo ${{ env.LOGS_NAMESPACE }} | sed 's/\//\\\//g')/g" \
                   -e "s/<PROCESS_COMMAND_LINE_DIMENSION_VALUE>/$(echo ${{ env.PROCESS_COMMAND_LINE }} | sed 's/\//\\\//g')/g"
@@ -118,16 +131,16 @@ jobs:
         continue-on-error: true
         working-directory: .github/docker-soak-tests
         env:
-          APP_IMAGE: ${{ steps.docker-image-metadata.outputs.tags }}
+          APP_IMAGE: ${{ fromJSON(steps.docker-image-metadata.outputs.json).tags[0] }}
           INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
           LISTEN_ADDRESS: 0.0.0.0:8080
-          LOG_GROUP_NAME: ${{ github.repository }}/soak-tests
+          LOG_GROUP_NAME: otel-soak-tests
           LOGS_NAMESPACE: ${{ env.LOGS_NAMESPACE }}
           LOG_STREAM_NAME: ${{ env.IMAGE_SUFFIX }}
           PROCESS_COMMAND_LINE: ${{ env.PROCESS_COMMAND_LINE }}
           PROCESS_EXECUTABLE_NAME: ${{ env.PROCESS_EXECUTABLE_NAME }}
-          HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS: ${{ env.HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS }}
-          SOAK_TEST_DURATION_IN_MINUTES: ${{ env.SOAK_TEST_DURATION_IN_MINUTES }}
+          HOSTMETRICS_INTERVAL_SECS: ${{ env.HOSTMETRICS_INTERVAL_SECS }}
+          TEST_DURATION_MINUTES: ${{ env.TEST_DURATION_MINUTES }}
         run: >-
           docker-compose up;
           exit $(docker inspect $(docker ps --quiet --all --filter "name=docker-soak-tests_alarms-poller") --format="{{.State.ExitCode}}");
@@ -138,8 +151,8 @@ jobs:
           do
             aws cloudwatch get-metric-widget-image --metric-widget "$(
               cat ./.github/aws-cloudwatch-api-values/get-metric-widget-statistics/$metric_kind-metric-widget.json |
-              sed -e "s/<SOAK_TEST_DURATION_IN_MINUTES>/${{ env.SOAK_TEST_DURATION_IN_MINUTES }}/g" \
-                  -e "s/<METRIC_PERIOD>/${{ env.HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS }}/g" \
+              sed -e "s/<TEST_DURATION_MINUTES>/${{ env.TEST_DURATION_MINUTES }}/g" \
+                  -e "s/<METRIC_PERIOD>/${{ env.HOSTMETRICS_INTERVAL_SECS }}/g" \
                   -e "s/<CPU_LOAD_THRESHOLD>/${{ env.CPU_LOAD_THRESHOLD }}/g" \
                   -e "s/<TOTAL_MEMORY_THRESHOLD>/${{ env.TOTAL_MEMORY_THRESHOLD }}/g" \
                   -e "s/<NUM_OF_CPUS>/$NUM_OF_CPUS/g" \
@@ -160,7 +173,7 @@ jobs:
       - name: Prepare Soak Test results as JSON output
         run: >-
           declare -a COMMON_API_PARAMETERS=(
-          --start-time $(date -u -d '${{ env.SOAK_TEST_DURATION_IN_MINUTES }} minutes ago' +%FT%TZ)
+          --start-time $(date -u -d '${{ env.TEST_DURATION_MINUTES }} minutes ago' +%FT%TZ)
           --end-time $(date -u +%FT%TZ)
           );
           METRIC_DATA_QUERY_INPUT_JSON=$(
@@ -173,7 +186,7 @@ jobs:
             benchmarks: [
               {
                 Name: \"Soak Test Average CPU Load\",
-                Value: first(.MetricDataResults[] | select(.Id == \"cpu_load_expr\")) | .Values | ( add / length / ${{ env.HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS }} / $NUM_OF_CPUS * 100 ),
+                Value: first(.MetricDataResults[] | select(.Id == \"cpu_load_expr\")) | .Values | ( add / length / ${{ env.HOSTMETRICS_INTERVAL_SECS }} / $NUM_OF_CPUS * 100 ),
                 Unit: \"Percent\"
               },
               {

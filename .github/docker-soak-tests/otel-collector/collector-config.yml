@@ -4,7 +4,7 @@ receivers:
       grpc:
         endpoint: 0.0.0.0:4317
   hostmetrics:
-    collection_interval: ${HOSTMETRICS_COLLECTION_INTERVAL_IN_SECONDS}s
+    collection_interval: ${HOSTMETRICS_INTERVAL_SECS}s
     scrapers:
       process:
         include:
@@ -19,6 +19,7 @@ processors:
         match_type: strict
         metric_names:
           - process.cpu.time
+          # TODO: Add this if we want Disk stats in the future
           # - process.disk.io
           - process.memory.physical_usage
           - process.memory.virtual_usage
@@ -27,12 +28,8 @@ processors:
             Value: ${PROCESS_COMMAND_LINE}
 
 exporters:
-  logging/debug:
-    loglevel: debug
-  logging/error:
-    loglevel: error
+  logging:
   awsemf:
-    # output_destination: stdout
     region: us-west-2
     namespace: ${LOGS_NAMESPACE}
     log_group_name: ${LOG_GROUP_NAME}
@@ -54,13 +51,11 @@ service:
       receivers:
         - otlp
       exporters:
-        - logging/error
+        - logging
     metrics:
       receivers:
-        - otlp
         - hostmetrics
       processors:
         - filter
       exporters:
         - awsemf
-        # - logging/debug

@@ -6,6 +6,6 @@ ARG GOPROXY=direct
 
 ENV GOPROXY=direct
 
-RUN go get github.com/rakyll/hey
+RUN curl https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64 -o /usr/local/bin/hey && chmod +x /usr/local/bin/hey
 
-CMD hey -z "$SOAK_TEST_DURATION_IN_MINUTES"m http://app:8080/outgoing-http-call
+CMD hey -z "$TEST_DURATION_MINUTES"m http://app:8080/outgoing-http-call

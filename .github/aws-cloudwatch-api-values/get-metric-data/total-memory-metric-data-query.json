@@ -39,7 +39,7 @@
     },
     {
         "Id": "total_memory_expr",
-        "Expression": "SUM([virtual_memory_raw, physical_memory_raw])",
+        "Expression": "SUM([virtual_memory_raw])",
         "Label": "Total Memory",
         "ReturnData": true,
         "Period": <METRIC_PERIOD>

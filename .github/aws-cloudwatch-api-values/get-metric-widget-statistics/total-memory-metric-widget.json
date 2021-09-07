@@ -6,7 +6,7 @@
             "process.command_line",
             "<PROCESS_COMMAND_LINE_DIMENSION_VALUE>",
             {
-                "id": "m2",
+                "id": "virtual_memory_raw",
                 "label": "Virtual Memory",
                 "color": "#ff7f0e"
             }
@@ -17,15 +17,15 @@
             ".",
             ".",
             {
-                "id": "m1",
+                "id": "physical_memory_raw",
                 "label": "Physical Memory",
                 "color": "#2ca02c"
             }
         ],
         [
             {
-                "expression": "SUM(METRICS())",
-                "label": "Total Memory",
+                "expression": "SUM([virtual_memory_raw])",
+                "label": "Total Memory (Virtual Memory)",
                 "id": "e1",
                 "color": "#1f77b4"
             }
@@ -52,6 +52,6 @@
     "liveData": false,
     "width": 2043,
     "height": 250,
-    "start": "-PT<SOAK_TEST_DURATION_IN_MINUTES>M",
+    "start": "-PT<TEST_DURATION_MINUTES>M",
     "end": "P0D"
 }

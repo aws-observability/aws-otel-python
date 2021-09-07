@@ -42,6 +42,6 @@
     "liveData": false,
     "width": 2043,
     "height": 250,
-    "start": "-PT<SOAK_TEST_DURATION_IN_MINUTES>M",
+    "start": "-PT<TEST_DURATION_MINUTES>M",
     "end": "P0D"
 }
