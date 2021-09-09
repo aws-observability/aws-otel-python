@@ -43,7 +43,7 @@ jobs:
       IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
       # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
       # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
-      LOGS_NAMESPACE: ${{ github.repository }}/soak-tests
+      LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
       - name: Configure Performance Test environment variables
         run: >-
@@ -170,6 +170,8 @@ jobs:
         uses: JasonEtco/create-an-issue@v2
         if: steps.check-failure-during-performance-tests.outcome == 'failure'
         env:
+          APP_PLATFORM: ${{ matrix.app-platform }}
+          INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
@@ -180,6 +182,8 @@ jobs:
         uses: JasonEtco/create-an-issue@v2
         if: steps.check-failure-after-performance-tests.outcome == 'failure'
         env:
+          APP_PLATFORM: ${{ matrix.app-platform }}
+          INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
