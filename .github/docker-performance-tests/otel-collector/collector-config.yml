@@ -31,7 +31,7 @@ exporters:
   logging:
     loglevel: error
   awsemf:
-    region: us-west-2
+    region: ${AWS_DEFAULT_REGION}
     namespace: ${LOGS_NAMESPACE}
     log_group_name: ${LOG_GROUP_NAME}
     log_stream_name: ${LOG_STREAM_NAME}
