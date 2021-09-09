@@ -1,5 +1,5 @@
 ---
-title: Performance Threshold breached AFTER Soak Tests completed on {{ date | date('dddd, MMMM Do') }}
+title: Performance Threshold breached AFTER Soak Tests completed
 # assignees: open-telemetry/opentelemetry-<LANGUAGE>-approvers
 labels: bug, enhancement
 ---

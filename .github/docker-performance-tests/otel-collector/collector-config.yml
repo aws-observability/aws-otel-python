@@ -25,10 +25,11 @@ processors:
           - process.memory.virtual_usage
         resource_attributes:
           - Key: process.command_line
-            Value: ${PROCESS_COMMAND_LINE}
+            Value: ${PROCESS_COMMAND_LINE_DIMENSION_VALUE}
 
 exporters:
   logging:
+    loglevel: error
   awsemf:
     region: us-west-2
     namespace: ${LOGS_NAMESPACE}

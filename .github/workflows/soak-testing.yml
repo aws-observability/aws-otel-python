@@ -1,24 +1,22 @@
 # Pre-requisites:
 # - AWS Account with correct permissions
 # - `gh-pages` branch
-# - AWS Account needs to add the LOGS_GROUP defined below
+# - AWS Account needs to add the LOG_GROUP_NAME defined below
 
 name: Soak Testing
 on:
   schedule:
-    - cron: '0 */6 * * *' # DEBUGGING: Every 6 hours
-  # push:
-  #   branches: [ main ]
+    - cron: '0 */24 * * *'
 env:
   # Language Specific
-  PROCESS_COMMAND_LINE: /usr/local/bin/python3 application.py
+  PROCESS_COMMAND_LINE_DIMENSION_VALUE: /usr/local/bin/python3 application.py
   PROCESS_EXECUTABLE_NAME: python3
   # - Every language must also set the path for the sample-app in the `Build and Push Docker image` step.
-  #   For example, Python is uses this path for it's sample-app context:
+  #   For example, Python is using this path for it's sample-app context:
   #   `context: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}`
 
-  # Global Env Vars
-  AWS_REGION: us-west-2
+  # Additional Env Vars
+  AWS_DEFAULT_REGION: us-east-1
   TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
   CPU_LOAD_THRESHOLD: 75
@@ -30,7 +28,7 @@ env:
 
 jobs:
   test_apps_and_publish_results:
-    name: Publish app and Soak Test - (${{ matrix.app-platform }}, ${{ matrix.instrumentation-type }})
+    name: Publish app and Soak Performance Test - (${{ matrix.app-platform }}, ${{ matrix.instrumentation-type }})
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -40,16 +38,15 @@ jobs:
       fail-fast: false
       matrix:
         app-platform: [ flask ]
-        # instrumentation-type: [ auto, manual ]
-        instrumentation-type: [ auto ]
+        instrumentation-type: [ auto, manual ]
     env:
       IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
+      # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
+      # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
+      LOGS_NAMESPACE: ${{ github.repository }}/soak-tests
     steps:
-      - name: Configure Soak Test environment variables
-        # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
-        # which we probably will not do?).
+      - name: Configure Performance Test environment variables
         run: >-
-          echo "LOGS_NAMESPACE=${{ github.repository }}/soak-tests" >> $GITHUB_ENV;
           echo "NUM_OF_CPUS=$(nproc --all)" >> $GITHUB_ENV;
       - uses: actions/checkout@v2
       - name: Log in to the GitHub Container Registry
@@ -94,113 +91,68 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - name: Prepare Metric Data Queries JSON Inputs
-        run: >-
-          for metric_kind in cpu-load total-memory;
-          do
-            echo "$(
-              cat ./.github/aws-cloudwatch-api-values/get-metric-data/$metric_kind-metric-data-query.json |
-              sed -e "s/<METRIC_PERIOD>/${{ env.HOSTMETRICS_INTERVAL_SECS }}/g" \
-                  -e "s/<NUM_OF_CPUS>/$NUM_OF_CPUS/g" \
-                  -e "s/<LOGS_NAMESPACE>/$(echo ${{ env.LOGS_NAMESPACE }} | sed 's/\//\\\//g')/g" \
-                  -e "s/<PROCESS_COMMAND_LINE_DIMENSION_VALUE>/$(echo ${{ env.PROCESS_COMMAND_LINE }} | sed 's/\//\\\//g')/g"
-            )" |
-            tee ./.github/aws-cloudwatch-api-values/get-metric-data/prepared-$metric_kind-metric-data-query.json;
-          done
-      - name: Create Soak Test alarms
-        run: >-
-          declare -a COMMON_API_PARAMETERS=(
-          --evaluation-periods 5
-          --datapoints-to-alarm 3
-          --comparison-operator GreaterThanOrEqualToThreshold
-          --treat-missing-data ignore
-          );
-          aws cloudwatch put-metric-alarm "${COMMON_API_PARAMETERS[@]}" \
-            --alarm-name 'OTel Python Soak Tests - CPU Load Percentage Spike' \
-            --alarm-description 'Triggers when the CPU Load Percentage spikes above the allowed threshold DURING the Soak Test.' \
-            --threshold ${{ env.CPU_LOAD_THRESHOLD }} \
-            --cli-input-json "{ \"Metrics\": $(cat ./.github/aws-cloudwatch-api-values/get-metric-data/prepared-cpu-load-metric-data-query.json) }"
-          aws cloudwatch put-metric-alarm "${COMMON_API_PARAMETERS[@]}" \
-            --alarm-name 'OTel Python Soak Tests - Virtual Memory Usage Spike' \
-            --alarm-description 'Triggers when the Virtual Memory Usage spikes above the allowed threshold DURING the Soak Test.' \
-            --threshold ${{ env.TOTAL_MEMORY_THRESHOLD }} \
-            --cli-input-json "{ \"Metrics\": $(cat ./.github/aws-cloudwatch-api-values/get-metric-data/prepared-total-memory-metric-data-query.json) }"
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 21600 # 6 Hours
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
       - name: Run All Docker Containers - Sample App + OTel Collector + Load Generator + Alarm Poller
-        id: check-failure-during-soak-tests
+        id: check-failure-during-performance-tests
         continue-on-error: true
-        working-directory: .github/docker-soak-tests
+        working-directory: .github/docker-performance-tests
         env:
           APP_IMAGE: ${{ fromJSON(steps.docker-image-metadata.outputs.json).tags[0] }}
           INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
           LISTEN_ADDRESS: 0.0.0.0:8080
-          LOG_GROUP_NAME: otel-soak-tests
+          LOG_GROUP_NAME: otel-sdk-performance-tests
           LOGS_NAMESPACE: ${{ env.LOGS_NAMESPACE }}
           LOG_STREAM_NAME: ${{ env.IMAGE_SUFFIX }}
-          PROCESS_COMMAND_LINE: ${{ env.PROCESS_COMMAND_LINE }}
+          PROCESS_COMMAND_LINE_DIMENSION_VALUE: ${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}
           PROCESS_EXECUTABLE_NAME: ${{ env.PROCESS_EXECUTABLE_NAME }}
           HOSTMETRICS_INTERVAL_SECS: ${{ env.HOSTMETRICS_INTERVAL_SECS }}
           TEST_DURATION_MINUTES: ${{ env.TEST_DURATION_MINUTES }}
+          NUM_OF_CPUS: ${{ env.NUM_OF_CPUS }}
+          CPU_LOAD_THRESHOLD: ${{ env.CPU_LOAD_THRESHOLD }}
+          TOTAL_MEMORY_THRESHOLD: ${{ env.TOTAL_MEMORY_THRESHOLD }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
         run: >-
           docker-compose up;
-          exit $(docker inspect $(docker ps --quiet --all --filter "name=docker-soak-tests_alarms-poller") --format="{{.State.ExitCode}}");
+          exit $(docker inspect $(docker ps --quiet --all --filter "name=docker-performance-tests_alarms-poller") --format="{{.State.ExitCode}}");
+      - name: Install script dependencies
+        run: pip install boto3
       - name: Get a snapshot of metrics
-        run: >-
-          mkdir -p soak-tests/snapshots/${{ github.sha }};
-          for metric_kind in cpu-load total-memory;
-          do
-            aws cloudwatch get-metric-widget-image --metric-widget "$(
-              cat ./.github/aws-cloudwatch-api-values/get-metric-widget-statistics/$metric_kind-metric-widget.json |
-              sed -e "s/<TEST_DURATION_MINUTES>/${{ env.TEST_DURATION_MINUTES }}/g" \
-                  -e "s/<METRIC_PERIOD>/${{ env.HOSTMETRICS_INTERVAL_SECS }}/g" \
-                  -e "s/<CPU_LOAD_THRESHOLD>/${{ env.CPU_LOAD_THRESHOLD }}/g" \
-                  -e "s/<TOTAL_MEMORY_THRESHOLD>/${{ env.TOTAL_MEMORY_THRESHOLD }}/g" \
-                  -e "s/<NUM_OF_CPUS>/$NUM_OF_CPUS/g" \
-                  -e "s/<LOGS_NAMESPACE>/$(echo ${{ env.LOGS_NAMESPACE }} | sed 's/\//\\\//g')/g" \
-                  -e "s/<PROCESS_COMMAND_LINE_DIMENSION_VALUE>/$(echo ${{ env.PROCESS_COMMAND_LINE }} | sed 's/\//\\\//g')/g"
-            )" |
-            jq -r '.MetricWidgetImage' |
-            base64 -d > soak-tests/snapshots/${{ github.sha }}/${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-$metric_kind-results-$GITHUB_RUN_ID.png;
-          done
+        run: python3 .github/scripts/performance-tests/produce-metric-widget-images.py
+          --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }}
+          --logs-namespace ${{ env.LOGS_NAMESPACE }}
+          --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
+          --num-of-cpus ${{ env.NUM_OF_CPUS }}
+          --process-command-line-dimension-value "${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
+          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
+          --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
+          --app-platform ${{ matrix.app-platform }}
+          --github-sha ${{ github.sha }}
+          --github-run-id ${{ env.GITHUB_RUN_ID }}
+          --instrumentation-type ${{ matrix.instrumentation-type }}
       - name: Commit snapshots to repository
-        uses: EndBug/add-and-commit@v7
-        with:
-          add: soak-tests/snapshots
-          branch: gh-pages
-          message: 'Adding Soak Tests Snapshots'
+        run: >-
+          git checkout gh-pages;
+          git pull;
+          git add soak-tests/snapshots;
+          git commit -m "Adding Soak Tests Snapshots from ${{ github.sha }}";
+          git push;
       - name: Move back to the main branch
         run: git checkout main
-      - name: Prepare Soak Test results as JSON output
-        run: >-
-          declare -a COMMON_API_PARAMETERS=(
-          --start-time $(date -u -d '${{ env.TEST_DURATION_MINUTES }} minutes ago' +%FT%TZ)
-          --end-time $(date -u +%FT%TZ)
-          );
-          METRIC_DATA_QUERY_INPUT_JSON=$(
-            jq -n '[ inputs ] | add' \
-            ./.github/aws-cloudwatch-api-values/get-metric-data/prepared-cpu-load-metric-data-query.json \
-            ./.github/aws-cloudwatch-api-values/get-metric-data/prepared-total-memory-metric-data-query.json
-          );
-          aws cloudwatch get-metric-data "${COMMON_API_PARAMETERS[@]}" --cli-input-json "{ \"MetricDataQueries\": $METRIC_DATA_QUERY_INPUT_JSON }" |
-          jq "{
-            benchmarks: [
-              {
-                Name: \"Soak Test Average CPU Load\",
-                Value: first(.MetricDataResults[] | select(.Id == \"cpu_load_expr\")) | .Values | ( add / length / ${{ env.HOSTMETRICS_INTERVAL_SECS }} / $NUM_OF_CPUS * 100 ),
-                Unit: \"Percent\"
-              },
-              {
-                Name: \"Soak Test Average Virtual Memory Used\",
-                Value: first( .MetricDataResults[] | select(.Id == \"total_memory_expr\") ) | .Values | ( add / length / $(echo '2^20' | bc) ),
-                Unit: \"Megabytes\"
-              }
-            ]
-          }" |
-          tee output.json
-      - name: Report on Soak Test Averages results
+      - name: Prepare Performance Test results as JSON output
+        run: python3 .github/scripts/performance-tests/produce-performance-test-results.py
+          --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }}
+          --logs-namespace ${{ env.LOGS_NAMESPACE }}
+          --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
+          --num-of-cpus ${{ env.NUM_OF_CPUS }}
+          --process-command-line-dimension-value "${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
+          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
+          --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
+      - name: Report on Performance Test Averages results
         uses: NathanielRN/github-action-benchmark@v1.8.2-alpha3
         continue-on-error: true
-        id: check-failure-after-soak-tests
+        id: check-failure-after-performance-tests
         with:
           name: Soak Test Results - sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
           tool: custombenchmark
@@ -214,9 +166,9 @@ jobs:
           auto-push: ${{ github.ref == 'refs/heads/main' }}
           gh-pages-branch: gh-pages
           benchmark-data-dir-path: soak-tests/per-commit-overall-results
-      - name: Publish Issue if failed DURING Soak Tests
+      - name: Publish Issue if failed DURING Performance Tests
         uses: JasonEtco/create-an-issue@v2
-        if: steps.check-failure-during-soak-tests.outcome == 'failure'
+        if: steps.check-failure-during-performance-tests.outcome == 'failure'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
@@ -224,9 +176,9 @@ jobs:
           GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
         with:
           filename: .github/issue-templates/FAILURE-DURING-SOAK_TESTS.md
-      - name: Publish Issue if failed AFTER Soak Tests
+      - name: Publish Issue if failed AFTER Performance Tests
         uses: JasonEtco/create-an-issue@v2
-        if: steps.check-failure-after-soak-tests.outcome == 'failure'
+        if: steps.check-failure-after-performance-tests.outcome == 'failure'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
@@ -234,11 +186,8 @@ jobs:
           GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
         with:
           filename: .github/issue-templates/FAILURE-AFTER-SOAK_TESTS.md
-      - name: Delete Soak Test alarms
+      - name: Check for Performance Degradation either DURING or AFTER Performance Tests
+        if: steps.check-failure-during-performance-tests.outcome == 'failure' || steps.check-failure-after-performance-tests.outcome == 'failure'
         run: >-
-          aws cloudwatch delete-alarms --alarm-names 'OTel Python Soak Tests - CPU Load Percentage Spike' 'OTel Python Soak Tests - Virtual Memory Usage Spike'
-      - name: Check for Performance Degradation either DURING or AFTER Soak Tests
-        if: steps.check-failure-after-soak-tests.outcome == 'failure' || steps.check-failure-after-soak-tests.outcome == 'failure'
-        run: >-
-          echo 'Soak Tests failed, see the logs above for details';
+          echo 'Performance Tests failed, see the logs above for details';
           exit 1;

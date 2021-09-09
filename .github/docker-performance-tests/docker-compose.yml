@@ -2,7 +2,7 @@ version: "3.7"
 services:
   otel:
     image: otel/opentelemetry-collector-contrib:latest
-    command: --config /otel-collector/collector-config.yml --log-level error
+    command: --config /otel-collector/collector-config.yml
     environment:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
@@ -11,7 +11,7 @@ services:
       - LOG_GROUP_NAME
       - LOGS_NAMESPACE
       - LOG_STREAM_NAME
-      - PROCESS_COMMAND_LINE
+      - PROCESS_COMMAND_LINE_DIMENSION_VALUE
       - PROCESS_EXECUTABLE_NAME
     volumes:
       - ./otel-collector:/otel-collector
@@ -30,7 +30,7 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
-      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_DEFAULT_REGION
       - SAMPLE_APP_LOG_LEVEL=ERROR
       - OTEL_RESOURCE_ATTRIBUTES=service.name=aws-otel-integ-test
       - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel:4317
@@ -53,8 +53,13 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
-      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_DEFAULT_REGION
       - HOSTMETRICS_INTERVAL_SECS
+      - NUM_OF_CPUS
+      - LOGS_NAMESPACE
+      - PROCESS_COMMAND_LINE_DIMENSION_VALUE
+      - CPU_LOAD_THRESHOLD
+      - TOTAL_MEMORY_THRESHOLD
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
