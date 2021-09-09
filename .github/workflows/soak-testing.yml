@@ -129,7 +129,7 @@ jobs:
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --app-platform ${{ matrix.app-platform }}
           --github-sha ${{ github.sha }}
-          --github-run-id ${{ env.GITHUB_RUN_ID }}
+          --github-run-id $GITHUB_RUN_ID
           --instrumentation-type ${{ matrix.instrumentation-type }}
       - name: Commit snapshots to repository
         run: >-
