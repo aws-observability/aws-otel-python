@@ -16,15 +16,6 @@ jobs:
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
-        with:
-          repository: open-telemetry/opentelemetry-python
-          path: ${{ env.APP_PATH }}/opentelemetry-python-core
-      - uses: actions/checkout@v2
-        if: ${{ matrix.instrumentation-type }} == manual
-        with:
-          repository: open-telemetry/opentelemetry-python-contrib
-          path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

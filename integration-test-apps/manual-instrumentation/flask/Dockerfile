@@ -4,6 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN git clone https://github.com/open-telemetry/opentelemetry-python.git opentelemetry-python-core
+
+RUN git clone https://github.com/open-telemetry/opentelemetry-python-contrib.git opentelemetry-python-contrib
+
 RUN pip install -r requirements.txt
 
 ENV HOME=/
