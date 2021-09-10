@@ -8,8 +8,6 @@ on:
   schedule:
     - cron: '0 */24 * * *'
 env:
-  # NOTE: `APP_PROCESS_EXECUTABLE_NAME` configuration is repo dependent
-  APP_PROCESS_EXECUTABLE_NAME: python3
   AWS_DEFAULT_REGION: us-east-1
   TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
@@ -34,21 +32,24 @@ jobs:
         app-platform: [ flask ]
         instrumentation-type: [ auto, manual ]
     env:
-      # NOTE: `APP_PATH` configuration is repo dependent
+      # NOTE: The configuration of `APP_PATH` is repo dependent
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
       IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
       # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
       # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
-      # NOTE: `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` configuration is repo dependent
+      # NOTE: The configuration of `APP_PROCESS_EXECUTABLE_NAME` and
+      # `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` is repo dependent
       - name: Configure Auto Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'auto' }}
         run: |-
+          echo "APP_PROCESS_EXECUTABLE_NAME=python3" >> $GITHUB_ENV;
           echo "APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE='/usr/local/bin/python3 application.py'" >> $GITHUB_ENV;
       - name: Configure Manual Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'manual' }}
         run: |-
+          echo "APP_PROCESS_EXECUTABLE_NAME=python" >> $GITHUB_ENV;
           echo "APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE='/usr/local/bin/python /app/application.py'" >> $GITHUB_ENV;
       - name: Clone This Repo First
         uses: actions/checkout@v2
