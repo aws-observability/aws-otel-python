@@ -23,7 +23,7 @@ COMMON_ALARM_API_PARAMETERS = {
     "EvaluationPeriods": 4,
     "DatapointsToAlarm": 3,
     "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-    "TreatMissingData": "breaching",
+    "TreatMissingData": "ignore",
 }
 
 CPU_LOAD_ALARM_NAME_PREFIX = (

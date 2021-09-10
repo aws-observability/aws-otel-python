@@ -40,11 +40,22 @@ jobs:
         app-platform: [ flask ]
         instrumentation-type: [ auto, manual ]
     env:
+      APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
       IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
       # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
       # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
+      - uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type }} == manual
+        with:
+          repository: open-telemetry/opentelemetry-python
+          path: ${{ env.APP_PATH }}/opentelemetry-python-core
+      - uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type }} == manual
+        with:
+          repository: open-telemetry/opentelemetry-python-contrib
+          path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
       - name: Configure Performance Test environment variables
         run: >-
           echo "NUM_OF_CPUS=$(nproc --all)" >> $GITHUB_ENV;
@@ -81,7 +92,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
+          context: ${{ env.APP_PATH }}
           tags: ${{ steps.docker-image-metadata.outputs.tags }}
           labels: ${{ steps.docker-image-metadata.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
