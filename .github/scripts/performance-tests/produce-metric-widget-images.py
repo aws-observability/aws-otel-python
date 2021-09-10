@@ -301,7 +301,7 @@ if __name__ == "__main__":
         )["MetricWidgetImage"]
 
         with open(
-            f"soak-tests/snapshots/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{widget_type}-{args.github_run_id}.png",
+            f"soak-tests/snapshots/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{widget_type}-soak-{args.github_run_id}.png",
             "wb",
         ) as file_context:
             file_context.write(metric_widget_image_bytes)

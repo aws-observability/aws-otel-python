@@ -176,9 +176,6 @@ jobs:
           APP_PLATFORM: ${{ matrix.app-platform }}
           INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
-          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-          GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
         with:
           filename: .github/issue-templates/FAILURE-DURING-SOAK_TESTS.md
       - name: Publish Issue if failed AFTER Performance Tests
@@ -188,9 +185,6 @@ jobs:
           APP_PLATFORM: ${{ matrix.app-platform }}
           INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_SERVER_URL: ${{ env.GITHUB_SERVER_URL }}
-          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-          GITHUB_RUN_ID: ${{ env.GITHUB_RUN_ID }}
         with:
           filename: .github/issue-templates/FAILURE-AFTER-SOAK_TESTS.md
       - name: Check for Performance Degradation either DURING or AFTER Performance Tests

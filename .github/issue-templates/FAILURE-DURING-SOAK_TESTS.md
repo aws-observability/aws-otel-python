@@ -11,5 +11,5 @@ During Soak Tests execution, a performance degradation was revealed for commit {
 
 Snapshots of the Soak Test run are available [on the gh-pages branch](https://github.com/NathanielRN/aws-otel-python-soaking-tests-demo/tree/gh-pages/soak-tests/snapshots). These are the snapshots for the violating commit:
 
-![CPU Load Soak Test SnapShot Image](https://github.com/NathanielRN/aws-otel-python-soaking-tests-demo/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-cpu-load-results-{{ env.GITHUB_RUN_ID }}.png?raw=true)
-![Total Memory Soak Test SnapShot Image](https://github.com/NathanielRN/aws-otel-python-soaking-tests-demo/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-total-memory-results-{{ env.GITHUB_RUN_ID }}.png?raw=true)
+![CPU Load Soak Test SnapShot Image](https://github.com/NathanielRN/aws-otel-python-soaking-tests-demo/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-cpu-load-soak-{{ env.GITHUB_RUN_ID }}.png?raw=true)
+![Total Memory Soak Test SnapShot Image](https://github.com/NathanielRN/aws-otel-python-soaking-tests-demo/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-total-memory-soak-{{ env.GITHUB_RUN_ID }}.png?raw=true)
