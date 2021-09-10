@@ -103,7 +103,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--process-command-line-dimension-value",
+        "--app-process-command-line-dimension-value",
         required=True,
         help="""
         The Cloudwatch metric dimension value which corresponds to the command
@@ -113,7 +113,7 @@ def parse_args():
 
         Examples:
 
-            --process-command-line-dimension-value='/usr/local/bin/python3 application.py'
+            --app-process-command-line-dimension-value='/usr/local/bin/python3 application.py'
         """,
     )
 
@@ -177,7 +177,7 @@ if __name__ == "__main__":
                     "Dimensions": [
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
-                            "Value": args.process_command_line_dimension_value,
+                            "Value": args.app_process_command_line_dimension_value,
                         }
                     ],
                 },
@@ -206,7 +206,7 @@ if __name__ == "__main__":
                     "Dimensions": [
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
-                            "Value": args.process_command_line_dimension_value,
+                            "Value": args.app_process_command_line_dimension_value,
                         }
                     ],
                 },
@@ -224,8 +224,8 @@ if __name__ == "__main__":
                     "MetricName": "process.memory.physical_usage",
                     "Dimensions": [
                         {
-                            "Name": "process.command_line",
-                            "Value": args.process_command_line_dimension_value,
+                            "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
+                            "Value": args.app_process_command_line_dimension_value,
                         }
                     ],
                 },
@@ -246,10 +246,16 @@ if __name__ == "__main__":
 
     aws_client = boto3.client("cloudwatch")
 
-    # Create Alarms
-
     cpu_load_alarm_name = f"{CPU_LOAD_ALARM_NAME_PREFIX} ({args.app_platform}, {args.instrumentation_type}) Sample App"
     total_memory_alarm_name = f"{TOTAL_MEMORY_ALARM_NAME_PREFIX} ({args.app_platform}, {args.instrumentation_type}) Sample App"
+
+    # Delete Alarms
+
+    aws_client.delete_alarms(
+        AlarmNames=[cpu_load_alarm_name, total_memory_alarm_name]
+    )
+
+    # Create Alarms
 
     aws_client.put_metric_alarm(
         **{

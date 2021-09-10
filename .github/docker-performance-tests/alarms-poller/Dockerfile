@@ -8,7 +8,7 @@ CMD python ./poll-during-performance-tests.py --cpu-load-threshold $CPU_LOAD_THR
                                               --logs-namespace $LOGS_NAMESPACE \
                                               --metrics-period $HOSTMETRICS_INTERVAL_SECS \
                                               --num-of-cpus $NUM_OF_CPUS \
-                                              --process-command-line-dimension-value "$PROCESS_COMMAND_LINE_DIMENSION_VALUE" \
+                                              --app-process-command-line-dimension-value "$APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE" \
                                               --total-memory-threshold $TOTAL_MEMORY_THRESHOLD \
                                               --app-platform $APP_PLATFORM \
                                               --instrumentation-type $INSTRUMENTATION_TYPE

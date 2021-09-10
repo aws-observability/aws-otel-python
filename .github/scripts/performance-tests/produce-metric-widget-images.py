@@ -83,7 +83,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--process-command-line-dimension-value",
+        "--app-process-command-line-dimension-value",
         required=True,
         help="""
         The Cloudwatch metric dimension value which corresponds to the command
@@ -93,7 +93,7 @@ def parse_args():
 
         Examples:
 
-            --process-command-line-dimension-value='/usr/local/bin/python3 application.py'
+            --app-process-command-line-dimension-value='/usr/local/bin/python3 application.py'
         """,
     )
 
@@ -198,7 +198,7 @@ if __name__ == "__main__":
                         args.logs_namespace,
                         "process.cpu.time",
                         PROCESS_COMMAND_LINE_DIMENSION_NAME,
-                        args.process_command_line_dimension_value,
+                        args.app_process_command_line_dimension_value,
                         {
                             "id": "cpu_time_raw",
                             "label": "CPU Time Raw",
@@ -243,7 +243,7 @@ if __name__ == "__main__":
                         args.logs_namespace,
                         "process.memory.virtual_usage",
                         PROCESS_COMMAND_LINE_DIMENSION_NAME,
-                        args.process_command_line_dimension_value,
+                        args.app_process_command_line_dimension_value,
                         {
                             "id": "virtual_memory_raw",
                             "label": "Virtual Memory",

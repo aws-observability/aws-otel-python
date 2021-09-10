@@ -8,14 +8,8 @@ on:
   schedule:
     - cron: '0 */24 * * *'
 env:
-  # Language Specific
-  PROCESS_COMMAND_LINE_DIMENSION_VALUE: /usr/local/bin/python3 application.py
-  PROCESS_EXECUTABLE_NAME: python3
-  # - Every language must also set the path for the sample-app in the `Build and Push Docker image` step.
-  #   For example, Python is using this path for it's sample-app context:
-  #   `context: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}`
-
-  # Additional Env Vars
+  # NOTE: `APP_PROCESS_EXECUTABLE_NAME` configuration is repo dependent
+  APP_PROCESS_EXECUTABLE_NAME: python3
   AWS_DEFAULT_REGION: us-east-1
   TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
@@ -40,26 +34,39 @@ jobs:
         app-platform: [ flask ]
         instrumentation-type: [ auto, manual ]
     env:
+      # NOTE: `APP_PATH` configuration is repo dependent
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
       IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
       # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
       # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
-      - uses: actions/checkout@v2
-        if: ${{ matrix.instrumentation-type }} == manual
+      # NOTE: `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` configuration is repo dependent
+      - name: Configure Auto Instrumentation-Type Specific Values
+        if: ${{ matrix.instrumentation-type == 'auto' }}
+        run: |-
+          echo "APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE='/usr/local/bin/python3 application.py'" >> $GITHUB_ENV;
+      - name: Configure Manual Instrumentation-Type Specific Values
+        if: ${{ matrix.instrumentation-type == 'manual' }}
+        run: |-
+          echo "APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE='/usr/local/bin/python /app/application.py'" >> $GITHUB_ENV;
+      - name: Clone This Repo First
+        uses: actions/checkout@v2
+      - name: Clone OpenTelemetry Core Repo
+        uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type == 'manual' }}
         with:
           repository: open-telemetry/opentelemetry-python
           path: ${{ env.APP_PATH }}/opentelemetry-python-core
-      - uses: actions/checkout@v2
-        if: ${{ matrix.instrumentation-type }} == manual
+      - name: Clone OpenTelemetry Contrib Repo
+        uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type == 'manual' }}
         with:
           repository: open-telemetry/opentelemetry-python-contrib
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
       - name: Configure Performance Test environment variables
-        run: >-
+        run: |-
           echo "NUM_OF_CPUS=$(nproc --all)" >> $GITHUB_ENV;
-      - uses: actions/checkout@v2
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -119,8 +126,8 @@ jobs:
           # Also uses:
           # LOGS_NAMESPACE
           # LOG_STREAM_NAME
-          # PROCESS_COMMAND_LINE_DIMENSION_VALUE
-          # PROCESS_EXECUTABLE_NAME
+          # APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE
+          # APP_PROCESS_EXECUTABLE_NAME
           # HOSTMETRICS_INTERVAL_SECS
           # TEST_DURATION_MINUTES
           # NUM_OF_CPUS
@@ -138,7 +145,7 @@ jobs:
           --logs-namespace ${{ env.LOGS_NAMESPACE }}
           --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
           --num-of-cpus ${{ env.NUM_OF_CPUS }}
-          --process-command-line-dimension-value "${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
+          --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
           --app-platform ${{ matrix.app-platform }}
@@ -163,7 +170,7 @@ jobs:
           --logs-namespace ${{ env.LOGS_NAMESPACE }}
           --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
           --num-of-cpus ${{ env.NUM_OF_CPUS }}
-          --process-command-line-dimension-value "${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
+          --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
       - name: Report on Performance Test Averages results
