@@ -98,20 +98,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--test-duration-minutes",
-        required=True,
-        type=int,
-        help="""
-        The duration of the performance test, which is used to determine the
-        start of metrics to include in the snapshots.
-
-        Examples:
-
-            --test-duration-minutes=$(echo 1.5 \* 2^30 | bc)
-        """,
-    )
-
-    parser.add_argument(
         "--total-memory-threshold",
         required=True,
         type=int,
@@ -122,6 +108,20 @@ def parse_args():
         Examples:
 
             --total-memory-threshold=$(echo 1.5 \* 2^30 | bc)
+        """,
+    )
+
+    parser.add_argument(
+        "--test-duration-minutes",
+        required=True,
+        type=int,
+        help="""
+        The duration of the performance test, which is used to determine the
+        start of metrics to include in the snapshots.
+
+        Examples:
+
+            --test-duration-minutes=$(echo 1.5 \* 2^30 | bc)
         """,
     )
 

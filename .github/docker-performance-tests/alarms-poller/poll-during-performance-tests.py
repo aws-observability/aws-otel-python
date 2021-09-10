@@ -23,13 +23,13 @@ COMMON_ALARM_API_PARAMETERS = {
     "EvaluationPeriods": 4,
     "DatapointsToAlarm": 3,
     "ComparisonOperator": "GreaterThanOrEqualToThreshold",
-    "TreatMissingData": "ignore",
+    "TreatMissingData": "breaching",
 }
 
-CPU_LOAD_ALARM_NAME = (
+CPU_LOAD_ALARM_NAME_PREFIX = (
     "OTel Performance Test - CPU Load Percentage Spike - Python"
 )
-TOTAL_MEMORY_ALARM_NAME = (
+TOTAL_MEMORY_ALARM_NAME_PREFIX = (
     "OTel Performance Test - Virtual Memory Usage Spike - Python"
 )
 
@@ -46,6 +46,32 @@ def parse_args():
         poll-during-performance-tests.py continuously polls the backend monitoring tool
         to see if an alarm has triggered because of a spike in the Performance Tests.
         """
+    )
+
+    parser.add_argument(
+        "--cpu-load-threshold",
+        required=True,
+        type=int,
+        help="""
+        The threshold the CPU Load (as a percentage) must stay under to not
+        trigger the alarm.
+
+        Examples:
+
+            --cpu-load-threshold=75
+        """,
+    )
+
+    parser.add_argument(
+        "--logs-namespace",
+        required=True,
+        help="""
+        The namespace of the logs that the alarm should poll.
+
+        Examples:
+
+            --logs-namespace=aws-observability/aws-otel-python/soak-tests
+        """,
     )
 
     parser.add_argument(
@@ -77,18 +103,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--logs-namespace",
-        required=True,
-        help="""
-        The namespace of the logs that the alarm should poll.
-
-        Examples:
-
-            --logs-namespace=aws-observability/aws-otel-python/soak-tests
-        """,
-    )
-
-    parser.add_argument(
         "--process-command-line-dimension-value",
         required=True,
         help="""
@@ -104,20 +118,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--cpu-load-threshold",
-        required=True,
-        type=int,
-        help="""
-        The threshold the CPU Load (as a percentage) must stay under to not
-        trigger the alarm.
-
-        Examples:
-
-            --cpu-load-threshold=75
-        """,
-    )
-
-    parser.add_argument(
         "--total-memory-threshold",
         required=True,
         type=int,
@@ -128,6 +128,34 @@ def parse_args():
         Examples:
 
             --total-memory-threshold=$(echo 1.5 \* 2^30 | bc)
+        """,
+    )
+
+    parser.add_argument(
+        "--app-platform",
+        required=True,
+        help="""
+        The framework platform for the Sample App which produced the performance
+        metrics. Used to create the name of the Performance Test Alarm and query
+        the correct namespace.
+
+        Examples:
+
+            --app-platform=flask
+        """,
+    )
+
+    parser.add_argument(
+        "--instrumentation-type",
+        required=True,
+        help="""
+        The framework platform for the Sample App which produced the performance
+        metrics. Used to create the name of the Performance Test Alarm and query
+        the correct namespace.
+
+        Examples:
+
+            --instrumentation-type=auto
         """,
     )
 
@@ -220,11 +248,14 @@ if __name__ == "__main__":
 
     # Create Alarms
 
+    cpu_load_alarm_name = f"{CPU_LOAD_ALARM_NAME_PREFIX} ({args.app_platform}, {args.instrumentation_type}) Sample App"
+    total_memory_alarm_name = f"{TOTAL_MEMORY_ALARM_NAME_PREFIX} ({args.app_platform}, {args.instrumentation_type}) Sample App"
+
     aws_client.put_metric_alarm(
         **{
             **COMMON_ALARM_API_PARAMETERS,
-            "AlarmName": CPU_LOAD_ALARM_NAME,
-            "AlarmDescription": "Triggers when the CPU Load Percentage spikes above the allowed threshold DURING the Performance Test.",
+            "AlarmName": cpu_load_alarm_name,
+            "AlarmDescription": "Triggers when the CPU Load Percentage spikes above the allowed threshold DURING the ({args.app_platform}, {args.instrumentation_type}) Sample App Performance Test.",
             "Threshold": args.cpu_load_threshold,
             "Metrics": cpu_load_metric_data_queries,
         }
@@ -233,8 +264,8 @@ if __name__ == "__main__":
     aws_client.put_metric_alarm(
         **{
             **COMMON_ALARM_API_PARAMETERS,
-            "AlarmName": TOTAL_MEMORY_ALARM_NAME,
-            "AlarmDescription": "Triggers when the Virtual Memory Usage spikes above the allowed threshold DURING the Performance Test.",
+            "AlarmName": total_memory_alarm_name,
+            "AlarmDescription": "Triggers when the Virtual Memory Usage spikes above the allowed threshold DURING the ({args.app_platform}, {args.instrumentation_type}) Sample App Performance Test.",
             "Threshold": args.total_memory_threshold,
             "Metrics": total_memory_metric_data_queries,
         }
@@ -258,19 +289,19 @@ if __name__ == "__main__":
         if time.time() - time_of_last_alarm_poll > args.metrics_period:
             logger.info("Polling alarms now.")
             for alarm in aws_client.describe_alarms(
-                AlarmNames=[CPU_LOAD_ALARM_NAME, TOTAL_MEMORY_ALARM_NAME]
+                AlarmNames=[
+                    cpu_load_alarm_name,
+                    total_memory_alarm_name,
+                ]
             )["MetricAlarms"]:
-                alarm_info = (
-                    "Alarm %s was %s with reason: %s.",
-                    alarm["AlarmName"],
-                    alarm["StateValue"],
-                    alarm["StateReason"],
+                alarm_desc = (
+                    f"Alarm {alarm['AlarmName']} was {alarm['StateValue']} with reason: {alarm['StateReason']}.",
                 )
                 if alarm["StateValue"] == "ALARM":
-                    logger.error(alarm_info)
+                    logger.error(alarm_desc)
                     did_tests_fail_during_execution = True
                 else:
-                    logger.info(alarm_info)
+                    logger.info(alarm_desc)
             time_of_last_alarm_poll = time.time()
 
         time.sleep(3)
@@ -281,7 +312,7 @@ if __name__ == "__main__":
     # Delete Alarms
 
     aws_client.delete_alarms(
-        AlarmNames=[CPU_LOAD_ALARM_NAME, TOTAL_MEMORY_ALARM_NAME]
+        AlarmNames=[cpu_load_alarm_name, total_memory_alarm_name]
     )
 
     # End the Polling

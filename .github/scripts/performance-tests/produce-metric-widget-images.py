@@ -98,20 +98,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--test-duration-minutes",
-        required=True,
-        type=int,
-        help="""
-        The duration of the performance test, which is used to determine the
-        start of metrics to include in the snapshots.
-
-        Examples:
-
-            --test-duration-minutes=$(echo 1.5 \* 2^30 | bc)
-        """,
-    )
-
-    parser.add_argument(
         "--total-memory-threshold",
         required=True,
         type=int,
@@ -126,6 +112,20 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--test-duration-minutes",
+        required=True,
+        type=int,
+        help="""
+        The duration of the performance test, which is used to determine the
+        start of metrics to include in the snapshots.
+
+        Examples:
+
+            --test-duration-minutes=$(echo 1.5 \* 2^30 | bc)
+        """,
+    )
+
+    parser.add_argument(
         "--app-platform",
         required=True,
         help="""
@@ -135,6 +135,19 @@ def parse_args():
         Examples:
 
             --app-platform=flask
+        """,
+    )
+
+    parser.add_argument(
+        "--instrumentation-type",
+        required=True,
+        help="""
+        The framework platform for the Sample App which produced the performance
+        metrics. Used to create the name of the snapshot PNG file.
+
+        Examples:
+
+            --instrumentation-type=auto
         """,
     )
 
@@ -161,19 +174,6 @@ def parse_args():
         Examples:
 
             --github-run-id=$GITHUB_RUN_ID
-        """,
-    )
-
-    parser.add_argument(
-        "--instrumentation-type",
-        required=True,
-        help="""
-        The framework platform for the Sample App which produced the performance
-        metrics. Used to create the name of the snapshot PNG file.
-
-        Examples:
-
-            --instrumentation-type=auto
         """,
     )
 

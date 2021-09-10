@@ -103,6 +103,8 @@ jobs:
           INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
           LISTEN_ADDRESS: 0.0.0.0:8080
           LOG_GROUP_NAME: otel-sdk-performance-tests
+          APP_PLATFORM: ${{ matrix.app-platform }}
+          INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           # Also uses:
           # LOGS_NAMESPACE
           # LOG_STREAM_NAME
@@ -126,12 +128,12 @@ jobs:
           --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
           --num-of-cpus ${{ env.NUM_OF_CPUS }}
           --process-command-line-dimension-value "${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
-          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
+          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
           --app-platform ${{ matrix.app-platform }}
+          --instrumentation-type ${{ matrix.instrumentation-type }}
           --github-sha ${{ github.sha }}
           --github-run-id $GITHUB_RUN_ID
-          --instrumentation-type ${{ matrix.instrumentation-type }}
       - name: Commit snapshots to repository
         run: |-
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com";
@@ -151,8 +153,8 @@ jobs:
           --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
           --num-of-cpus ${{ env.NUM_OF_CPUS }}
           --process-command-line-dimension-value "${{ env.PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
-          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
+          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
       - name: Report on Performance Test Averages results
         uses: NathanielRN/github-action-benchmark@v1.8.2-alpha3
         continue-on-error: true
