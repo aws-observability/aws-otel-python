@@ -6,7 +6,11 @@ import time
 import boto3
 import docker
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 logger = logging.getLogger(__file__)
 
@@ -16,13 +20,15 @@ PROCESS_COMMAND_LINE_DIMENSION_NAME = "process.command_line"
 METRIC_DATA_STATISTIC = "Sum"
 
 COMMON_ALARM_API_PARAMETERS = {
-    "EvaluationPeriods": 5,
+    "EvaluationPeriods": 4,
     "DatapointsToAlarm": 3,
     "ComparisonOperator": "GreaterThanOrEqualToThreshold",
     "TreatMissingData": "ignore",
 }
 
-CPU_LOAD_ALARM_NAME = "OTel Performance Test - CPU Load Percentage Spike - Python"
+CPU_LOAD_ALARM_NAME = (
+    "OTel Performance Test - CPU Load Percentage Spike - Python"
+)
 TOTAL_MEMORY_ALARM_NAME = (
     "OTel Performance Test - Virtual Memory Usage Spike - Python"
 )
@@ -254,16 +260,17 @@ if __name__ == "__main__":
             for alarm in aws_client.describe_alarms(
                 AlarmNames=[CPU_LOAD_ALARM_NAME, TOTAL_MEMORY_ALARM_NAME]
             )["MetricAlarms"]:
-                if alarm["StateValue"] == "ALARM":
-                    logger.error(
-                        "Triggered alarm %s with reason: %s",
-                        alarm["AlarmName"],
-                        alarm["StateReason"],
-                    )
-                    did_tests_fail_during_execution = True
-                logger.info(
-                    "Alarm %s was %s", alarm["AlarmName"], alarm["StateValue"]
+                alarm_info = (
+                    "Alarm %s was %s with reason: %s.",
+                    alarm["AlarmName"],
+                    alarm["StateValue"],
+                    alarm["StateReason"],
                 )
+                if alarm["StateValue"] == "ALARM":
+                    logger.error(alarm_info)
+                    did_tests_fail_during_execution = True
+                else:
+                    logger.info(alarm_info)
             time_of_last_alarm_poll = time.time()
 
         time.sleep(3)
