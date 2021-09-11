@@ -8,6 +8,8 @@ on:
   schedule:
     - cron: '0 */24 * * *'
 env:
+  # NOTE: The configuration of `APP_PROCESS_EXECUTABLE_NAME` is repo dependent
+  APP_PROCESS_EXECUTABLE_NAME: python3
   AWS_DEFAULT_REGION: us-east-1
   TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
@@ -39,18 +41,19 @@ jobs:
       # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
-      # NOTE: The configuration of `APP_PROCESS_EXECUTABLE_NAME` and
-      # `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` is repo dependent
+      # NOTE: The configuration of `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` is repo dependent
       - name: Configure Auto Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'auto' }}
         run: |-
-          echo "APP_PROCESS_EXECUTABLE_NAME=python3" >> $GITHUB_ENV;
-          echo "APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE='/usr/local/bin/python3 application.py'" >> $GITHUB_ENV;
+          echo 'APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE<<EOF' >> $GITHUB_ENV
+          echo '/usr/local/bin/python3 application.py' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
       - name: Configure Manual Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'manual' }}
         run: |-
-          echo "APP_PROCESS_EXECUTABLE_NAME=python" >> $GITHUB_ENV;
-          echo "APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE='/usr/local/bin/python /app/application.py'" >> $GITHUB_ENV;
+          echo 'APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE<<EOF' >> $GITHUB_ENV
+          echo '/usr/local/bin/python3 /app/application.py' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
       - name: Clone This Repo First
         uses: actions/checkout@v2
       - name: Clone OpenTelemetry Core Repo
