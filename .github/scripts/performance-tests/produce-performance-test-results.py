@@ -234,10 +234,7 @@ if __name__ == "__main__":
                             for metric_data in metric_data_results
                             if metric_data["Id"] == "cpu_load_expr"
                         )["Values"]
-                    )
-                    / args.metrics_period
-                    / args.num_of_cpus
-                    * 100,
+                    ),
                     "Unit": "Percent",
                 },
                 {
