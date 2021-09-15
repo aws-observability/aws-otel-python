@@ -10,7 +10,6 @@ on:
 env:
   # NOTE: The configuration of `APP_PROCESS_EXECUTABLE_NAME` is repo dependent
   APP_PROCESS_EXECUTABLE_NAME: python3
-  APP_REPOSITORY_NAME: aws-otel-python
   AWS_DEFAULT_REGION: us-east-1
   TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
@@ -214,14 +213,12 @@ jobs:
         with:
           filename: .github/issue-templates/FAILURE-DURING-SOAK_TESTS.md
       - name: Publish Issue if failed AFTER Performance Tests
-        uses: JasonEtco/create-an-issue@v2
+        uses: NathanielRN/create-an-issue@v2.5.1-alpha2
         if: steps.check-failure-after-performance-tests.outcome == 'failure'
         env:
           APP_PLATFORM: ${{ matrix.app-platform }}
           INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-          GITHUB_REPOSITORY_NAME: $APP_REPOSITORY_NAME
         with:
           filename: .github/issue-templates/FAILURE-AFTER-SOAK_TESTS.md
       - name: Check for Performance Degradation either DURING or AFTER Performance Tests

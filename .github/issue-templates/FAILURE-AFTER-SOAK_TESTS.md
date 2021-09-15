@@ -14,4 +14,4 @@ Snapshots of the Soak Test run are available [on the gh-pages branch](https://gi
 ![CPU Load Soak Test SnapShot Image](https://github.com/{{ env.GITHUB_REPOSITORY }}/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-cpu-load-soak-{{ env.GITHUB_RUN_ID }}.png?raw=true)
 ![Total Memory Soak Test SnapShot Image](https://github.com/{{ env.GITHUB_REPOSITORY }}/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-total-memory-soak-{{ env.GITHUB_RUN_ID }}.png?raw=true)
 
-The threshold violation should also be noticeable on [our graph of Soak Test average results per commit](https://{{ env.GITHUB_REPOSITORY_OWNER }}.github.io/{{ env.GITHUB_REPOSITORY_NAME }}/soak-tests/per-commit-overall-results/index.html).
+The threshold violation should also be noticeable on [our graph of Soak Test average results per commit](https://{{ repo.owner }}.github.io/{{ repo.repo }}/soak-tests/per-commit-overall-results/index.html).
