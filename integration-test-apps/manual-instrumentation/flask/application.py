@@ -4,7 +4,9 @@
 # OTel Imports
 
 from opentelemetry import propagate, trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+    OTLPSpanExporter,
+)
 
 # Instrumentation Libraries
 
@@ -23,6 +25,10 @@ from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
 from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     AwsXRayFormat,
 )
+# from opentelemetry.sdk.resources import get_aggregated_resources
+# from opentelemetry.sdk.extension.aws.resource.ec2 import (
+#     AwsEc2ResourceDetector,
+# )
 
 # Integration Test App
 
@@ -42,7 +48,13 @@ otlp_exporter = OTLPSpanExporter()
 span_processor = BatchSpanProcessor(otlp_exporter)
 trace.set_tracer_provider(
     TracerProvider(
-        active_span_processor=span_processor, id_generator=AwsXRayIdGenerator()
+        active_span_processor=span_processor,
+        id_generator=AwsXRayIdGenerator(),
+        # resource=get_aggregated_resources(
+        #     [
+        #         AwsEc2ResourceDetector(),
+        #     ]
+        # ),
     )
 )
 

@@ -41,7 +41,7 @@ apiLatencyRecorder = meter.create_valuerecorder(
 # Start Metric Pipeline
 
 # Exporter to export metrics to the console
-exporter = OTLPMetricsExporter(insecure=True)
+exporter = OTLPMetricsExporter()
 
 # start_pipeline will notify the MeterProvider to begin collecting/exporting
 # metrics with the given meter, exporter and interval in seconds

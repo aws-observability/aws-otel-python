@@ -7,7 +7,8 @@ import time
 
 import boto3
 import requests
-from flask import Flask, request, session
+from flask import Flask, session
+import logging
 from opentelemetry import trace
 from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     TRACE_ID_DELIMITER,
@@ -15,8 +16,12 @@ from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
     TRACE_ID_VERSION,
 )
 
+if os.environ.get('SAMPLE_APP_LOG_LEVEL') == 'ERROR':
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
 # NOTE: (NathanielRN) Metrics is on hold until 1.50 release
-# See https://github.com/open-telemetry/opentelemetry-python/issues/1547#issuecomment-768592654
+# See https://github.com/open-telemetry/opentelemetry-python/issues/1835
 # from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
 
 # Constants

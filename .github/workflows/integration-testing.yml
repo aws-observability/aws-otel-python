@@ -15,13 +15,17 @@ jobs:
     env:
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
+      - name: Checkout This Repo
+        uses: actions/checkout@v2
+      - name: Checkout OpenTelemetry Python Core Repo
+        uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type == 'manual' }}
         with:
           repository: open-telemetry/opentelemetry-python
           path: ${{ env.APP_PATH }}/opentelemetry-python-core
-      - uses: actions/checkout@v2
-        if: ${{ matrix.instrumentation-type }} == manual
+      - name: Checkout OpenTelemetry Python Contrib Repo
+        uses: actions/checkout@v2
+        if: ${{ matrix.instrumentation-type == 'manual' }}
         with:
           repository: open-telemetry/opentelemetry-python-contrib
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
@@ -63,5 +67,5 @@ jobs:
           LISTEN_ADDRESS: 0.0.0.0:8080
           APP_IMAGE: public.ecr.aws/aws-otel-test/python-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}:${{ github.sha }}
           # TODO: (NathanielRN) Once metrics are updated in OTel Python, update this
-          # to also validate metrics integration
+          # to also validate metrics integration. See https://github.com/open-telemetry/opentelemetry-python/issues/1835
           VALIDATOR_COMMAND: -c default-otel-trace-validation.yml --endpoint http://app:8080 --metric-namespace default -t ${{ github.run_id }}-${{ github.run_number }}
