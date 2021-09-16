@@ -20,7 +20,7 @@ if os.environ.get('SAMPLE_APP_LOG_LEVEL') == 'ERROR':
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
 
-# NOTE: (NathanielRN) Metrics is on hold until 1.50 release
+# NOTE: (NathanielRN) Metrics is on hold.
 # See https://github.com/open-telemetry/opentelemetry-python/issues/1835
 # from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
 
