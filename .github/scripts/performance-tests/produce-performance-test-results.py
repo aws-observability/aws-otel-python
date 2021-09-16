@@ -194,7 +194,7 @@ if __name__ == "__main__":
                     "MetricName": "process.memory.physical_usage",
                     "Dimensions": [
                         {
-                            "Name": "process.command_line",
+                            "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
                         }
                     ],
