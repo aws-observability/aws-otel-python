@@ -171,8 +171,7 @@ jobs:
           git add soak-tests/snapshots;
           git commit -m "Adding Soak Tests Snapshots from ${{ github.sha }}";
           git push;
-      - name: Move back to the main branch
-        run: git checkout main
+          git checkout main;
       - name: Prepare Performance Test results as JSON output
         run: python3 .github/scripts/performance-tests/produce-performance-test-results.py
           --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }}
