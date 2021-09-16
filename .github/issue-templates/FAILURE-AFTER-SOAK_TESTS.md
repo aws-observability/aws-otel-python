@@ -1,7 +1,7 @@
 ---
 title: Performance Threshold breached AFTER Soak Tests completed for the ({{ env.APP_PLATFORM }}, {{ env.INSTRUMENTATION_TYPE }}) Sample App
 # assignees: open-telemetry/opentelemetry-<LANGUAGE>-approvers
-labels: bug, enhancement
+labels: bug #, enhancement
 ---
 # Description
 
