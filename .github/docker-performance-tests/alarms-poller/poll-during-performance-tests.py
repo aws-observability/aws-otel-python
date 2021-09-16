@@ -16,6 +16,8 @@ logger = logging.getLogger(__file__)
 
 # AWS Client API Constants
 
+COMMIT_SHA_DIMENSION_NAME = "commit_sha"
+GITHUB_RUN_ID_DIMENSION_NAME = "github_run_id"
 PROCESS_COMMAND_LINE_DIMENSION_NAME = "process.command_line"
 METRIC_DATA_STATISTIC = "Sum"
 
@@ -132,30 +134,43 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--app-platform",
+        "--target-sha",
         required=True,
         help="""
-        The framework platform for the Sample App which produced the performance
-        metrics. Used to create the name of the Performance Test Alarm and query
-        the correct namespace.
+        The SHA of the commit for the current GitHub workflow run. Used to
+        query Cloudwatch by metric dimension value so metrics returned
+        correspond to the app that was performance tested.
 
         Examples:
 
-            --app-platform=flask
+            --target-sha=${{ github.sha }}
         """,
     )
 
     parser.add_argument(
-        "--instrumentation-type",
+        "--github-run-id",
         required=True,
         help="""
-        The framework platform for the Sample App which produced the performance
-        metrics. Used to create the name of the Performance Test Alarm and query
-        the correct namespace.
+        The Id for the current GitHub workflow run. Used to create a unique
+        name for the Performance Test Alarms.
 
         Examples:
 
-            --instrumentation-type=auto
+            --github-run-id=$GITHUB_RUN_ID
+        """,
+    )
+
+    parser.add_argument(
+        "--image-suffix",
+        required=True,
+        help="""
+        The image suffix which uniquely defines this Sample app by its platform
+        used, its instrumentation type, and the commit SHA from which it was
+        built. Used to create a unique name for the Performance Test Alarms.
+
+        Examples:
+
+            --image-suffix=flask-auto-12345abcdef38e38678a59da0911c9abcde12345
         """,
     )
 
@@ -189,6 +204,14 @@ if __name__ == "__main__":
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
+                        },
+                        {
+                            "Name": COMMIT_SHA_DIMENSION_NAME,
+                            "Value": args.target_sha,
+                        },
+                        {
+                            "Name": GITHUB_RUN_ID_DIMENSION_NAME,
+                            "Value": args.github_run_id,
                         }
                     ],
                 },
@@ -218,6 +241,14 @@ if __name__ == "__main__":
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
+                        },
+                        {
+                            "Name": COMMIT_SHA_DIMENSION_NAME,
+                            "Value": args.target_sha,
+                        },
+                        {
+                            "Name": GITHUB_RUN_ID_DIMENSION_NAME,
+                            "Value": args.github_run_id,
                         }
                     ],
                 },
@@ -237,6 +268,14 @@ if __name__ == "__main__":
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
+                        },
+                        {
+                            "Name": COMMIT_SHA_DIMENSION_NAME,
+                            "Value": args.target_sha,
+                        },
+                        {
+                            "Name": GITHUB_RUN_ID_DIMENSION_NAME,
+                            "Value": args.github_run_id,
                         }
                     ],
                 },
@@ -257,8 +296,10 @@ if __name__ == "__main__":
 
     aws_client = boto3.client("cloudwatch")
 
-    cpu_load_alarm_name = f"{CPU_LOAD_ALARM_NAME_PREFIX} ({args.app_platform}, {args.instrumentation_type}) Sample App"
-    total_memory_alarm_name = f"{TOTAL_MEMORY_ALARM_NAME_PREFIX} ({args.app_platform}, {args.instrumentation_type}) Sample App"
+    unique_alarm_name_component = f"{args.image_suffix}-{args.github_run_id}"
+
+    cpu_load_alarm_name = f"{CPU_LOAD_ALARM_NAME_PREFIX} ({unique_alarm_name_component}) Sample App"
+    total_memory_alarm_name = f"{TOTAL_MEMORY_ALARM_NAME_PREFIX} ({unique_alarm_name_component}) Sample App"
 
     # Delete Alarms
 
@@ -272,7 +313,7 @@ if __name__ == "__main__":
         **{
             **COMMON_ALARM_API_PARAMETERS,
             "AlarmName": cpu_load_alarm_name,
-            "AlarmDescription": "Triggers when the CPU Load Percentage spikes above the allowed threshold DURING the ({args.app_platform}, {args.instrumentation_type}) Sample App Performance Test.",
+            "AlarmDescription": "Triggers when the CPU Load Percentage spikes above the allowed threshold DURING the ({unique_alarm_name_component}) Sample App Performance Test.",
             "Threshold": args.cpu_load_threshold,
             "Metrics": cpu_load_metric_data_queries,
         }
@@ -282,7 +323,7 @@ if __name__ == "__main__":
         **{
             **COMMON_ALARM_API_PARAMETERS,
             "AlarmName": total_memory_alarm_name,
-            "AlarmDescription": "Triggers when the Virtual Memory Usage spikes above the allowed threshold DURING the ({args.app_platform}, {args.instrumentation_type}) Sample App Performance Test.",
+            "AlarmDescription": "Triggers when the Virtual Memory Usage spikes above the allowed threshold DURING the ({unique_alarm_name_component}) Sample App Performance Test.",
             "Threshold": args.total_memory_threshold,
             "Metrics": total_memory_metric_data_queries,
         }

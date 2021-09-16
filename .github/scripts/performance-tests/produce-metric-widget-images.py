@@ -21,6 +21,8 @@ SOAK_TESTS_SNAPSHOTS_DIR = "soak-tests/snapshots"
 
 # AWS Client API Constants
 
+COMMIT_SHA_DIMENSION_NAME = "commit_sha"
+GITHUB_RUN_ID_DIMENSION_NAME = "github_run_id"
 PROCESS_COMMAND_LINE_DIMENSION_NAME = "process.command_line"
 METRIC_DATA_STATISTIC = "Sum"
 
@@ -131,22 +133,23 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--github-sha",
+        "--target-sha",
         required=True,
         help="""
         The SHA of the commit for the current GitHub workflow run. Used to
-        create a folder for the snapshot PNG files.
+        query Cloudwatch by metric dimension value so metrics returned
+        correspond to the app that was performance tested. Also used to create a
+        folder for the snapshot PNG files.
 
         Examples:
 
-            --github-sha=${{ github.sha }}
+            --target-sha=${{ github.sha }}
         """,
     )
 
     parser.add_argument(
         "--github-run-id",
         required=True,
-        type=int,
         help="""
         The Id for the current GitHub workflow run. Used to create the name of
         the snapshot PNG file.
@@ -219,6 +222,10 @@ if __name__ == "__main__":
                         "process.cpu.time",
                         PROCESS_COMMAND_LINE_DIMENSION_NAME,
                         args.app_process_command_line_dimension_value,
+                        COMMIT_SHA_DIMENSION_NAME,
+                        args.target_sha,
+                        GITHUB_RUN_ID_DIMENSION_NAME,
+                        args.github_run_id,
                         {
                             "id": "cpu_time_raw",
                             "label": "CPU Time Raw",
@@ -264,6 +271,10 @@ if __name__ == "__main__":
                         "process.memory.virtual_usage",
                         PROCESS_COMMAND_LINE_DIMENSION_NAME,
                         args.app_process_command_line_dimension_value,
+                        COMMIT_SHA_DIMENSION_NAME,
+                        args.target_sha,
+                        GITHUB_RUN_ID_DIMENSION_NAME,
+                        args.github_run_id,
                         {
                             "id": "virtual_memory_raw",
                             "label": "Virtual Memory",
@@ -273,6 +284,10 @@ if __name__ == "__main__":
                     [
                         ".",
                         "process.memory.physical_usage",
+                        ".",
+                        ".",
+                        ".",
+                        ".",
                         ".",
                         ".",
                         {
@@ -313,7 +328,7 @@ if __name__ == "__main__":
         ),
     ]
 
-    Path(f"{SOAK_TESTS_SNAPSHOTS_DIR}/{ args.github_sha }").mkdir(
+    Path(f"{SOAK_TESTS_SNAPSHOTS_DIR}/{ args.target_sha }").mkdir(
         parents=True, exist_ok=True
     )
 
@@ -325,7 +340,7 @@ if __name__ == "__main__":
         )["MetricWidgetImage"]
 
         with open(
-            f"{SOAK_TESTS_SNAPSHOTS_DIR}/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png",
+            f"{SOAK_TESTS_SNAPSHOTS_DIR}/{args.target_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png",
             "wb",
         ) as file_context:
             file_context.write(metric_widget_image_bytes)

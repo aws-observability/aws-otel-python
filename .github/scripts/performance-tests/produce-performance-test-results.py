@@ -16,6 +16,8 @@ logger = logging.getLogger(__file__)
 
 # AWS Client API Constants
 
+COMMIT_SHA_DIMENSION_NAME = "commit_sha"
+GITHUB_RUN_ID_DIMENSION_NAME = "github_run_id"
 PROCESS_COMMAND_LINE_DIMENSION_NAME = "process.command_line"
 METRIC_DATA_STATISTIC = "Sum"
 
@@ -112,6 +114,34 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--target-sha",
+        required=True,
+        help="""
+        The SHA of the commit for the current GitHub workflow run. Used to
+        query Cloudwatch by metric dimension value so metrics returned
+        correspond to the app that was performance tested.
+
+        Examples:
+
+            --target-sha=${{ github.sha }}
+        """,
+    )
+
+    parser.add_argument(
+        "--github-run-id",
+        required=True,
+        help="""
+        The Id for the current GitHub workflow run. Used to query Cloudwatch by
+        metric dimension value so metrics returned correspond to the app that
+        was performance tested.
+
+        Examples:
+
+            --github-run-id=$GITHUB_RUN_ID
+        """,
+    )
+
+    parser.add_argument(
         "--test-duration-minutes",
         required=True,
         type=int,
@@ -148,6 +178,14 @@ if __name__ == "__main__":
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
+                        },
+                        {
+                            "Name": COMMIT_SHA_DIMENSION_NAME,
+                            "Value": args.target_sha,
+                        },
+                        {
+                            "Name": GITHUB_RUN_ID_DIMENSION_NAME,
+                            "Value": args.github_run_id,
                         }
                     ],
                 },
@@ -177,6 +215,14 @@ if __name__ == "__main__":
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
+                        },
+                        {
+                            "Name": COMMIT_SHA_DIMENSION_NAME,
+                            "Value": args.target_sha,
+                        },
+                        {
+                            "Name": GITHUB_RUN_ID_DIMENSION_NAME,
+                            "Value": args.github_run_id,
                         }
                     ],
                 },
@@ -196,6 +242,14 @@ if __name__ == "__main__":
                         {
                             "Name": PROCESS_COMMAND_LINE_DIMENSION_NAME,
                             "Value": args.app_process_command_line_dimension_value,
+                        },
+                        {
+                            "Name": COMMIT_SHA_DIMENSION_NAME,
+                            "Value": args.target_sha,
+                        },
+                        {
+                            "Name": GITHUB_RUN_ID_DIMENSION_NAME,
+                            "Value": args.github_run_id,
                         }
                     ],
                 },
