@@ -165,6 +165,17 @@ def parse_args():
 if __name__ == "__main__":
     logger.debug("Starting Alarm Polling Script.")
 
+    docker_client = docker.from_env()
+
+    if (
+        docker_client.containers.get(APP_CONTAINER_NAME).attrs["State"][
+            "Status"
+        ]
+        != "running"
+    ):
+        logger.error("Failing because Sample App failed to start.")
+        sys.exit(1)
+
     args = parse_args()
 
     cpu_load_metric_data_queries = [
@@ -279,7 +290,6 @@ if __name__ == "__main__":
 
     # Poll Alarms
 
-    docker_client = docker.from_env()
     did_tests_fail_during_execution = False
     time_of_last_alarm_poll = time.time()
 

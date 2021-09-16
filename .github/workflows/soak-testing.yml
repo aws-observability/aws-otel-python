@@ -140,7 +140,12 @@ jobs:
           # AWS_DEFAULT_REGION
         run: >-
           docker-compose up --build;
-          exit $(docker inspect $(docker ps --quiet --all --filter "name=docker-performance-tests_alarms-poller") --format="{{.State.ExitCode}}");
+          RUN_EXIT_CODE=$(docker inspect $(docker ps --quiet --all --filter "name=docker-performance-tests_alarms-poller") --format="{{.State.ExitCode}}");
+          echo "::set-output name=run_exit_code::$RUN_EXIT_CODE";
+          exit $RUN_EXIT_CODE;
+      - name: Fail early if Soak Tests failed to start
+        if: ${{ steps.check-failure-during-performance-tests.outputs.run_exit_code == '1' }}
+        run: exit 1;
       - name: Install script dependencies
         run: pip install boto3
       - name: Get a snapshot of metrics
