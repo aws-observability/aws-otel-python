@@ -41,11 +41,11 @@ apiLatencyRecorder = meter.create_valuerecorder(
 # Start Metric Pipeline
 
 # Exporter to export metrics to the console
-exporter = OTLPMetricsExporter(insecure=True)
+exporter = OTLPMetricsExporter()
 
 # start_pipeline will notify the MeterProvider to begin collecting/exporting
 # metrics with the given meter, exporter and interval in seconds
-# TODO: Auto Instrumentation will instantiate the MeterProvider before this
+# TODO: Auto-Instrumentation will instantiate the MeterProvider before this
 # file has a chance to instantiate it. Once https://github.com/open-telemetry/opentelemetry-python/issues/1444
 # is resolved, this try except block can be removed.
 try:
