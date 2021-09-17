@@ -23,7 +23,7 @@ env:
   DEFAULT_TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
   CPU_LOAD_THRESHOLD: 71
-  TOTAL_MEMORY_THRESHOLD: 1610612736
+  TOTAL_MEMORY_THRESHOLD: 2147483648
   MAX_BENCHMARKS_TO_KEEP: 100
   # TODO: We might be able to adapt the "Soak Tests" to be "Overhead Tests".
   # This means monitoring the Sample App's performance using high levels of TPS
@@ -64,13 +64,13 @@ jobs:
           echo "TARGET_SHA=${{ github.sha }}" | tee --append $GITHUB_ENV;
       - name: Configure Auto Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'auto' }}
-        run: |-
+        run: |
           echo 'APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE<<EOF' >> $GITHUB_ENV
           echo '/usr/local/bin/python3 application.py' | tee --append $GITHUB_ENV;
           echo 'EOF' >> $GITHUB_ENV
       - name: Configure Manual Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'manual' }}
-        run: |-
+        run: |
           echo 'APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE<<EOF' >> $GITHUB_ENV
           echo '/usr/local/bin/python3 /app/application.py' | tee --append $GITHUB_ENV;
           echo 'EOF' >> $GITHUB_ENV
@@ -106,7 +106,7 @@ jobs:
           repository: open-telemetry/opentelemetry-python-contrib
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
       - name: Configure Performance Test environment variables
-        run: |-
+        run: |
           echo "NUM_OF_CPUS=$(nproc --all)" | tee --append $GITHUB_ENV;
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v1
@@ -188,22 +188,22 @@ jobs:
         run: exit 1;
       - name: Install script dependencies
         run: pip install boto3
-      - name: Get a snapshot of metrics
-        run: python3 .github/scripts/performance-tests/produce-metric-widget-images.py
-          --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }}
-          --logs-namespace ${{ env.LOGS_NAMESPACE }}
-          --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
-          --num-of-cpus ${{ env.NUM_OF_CPUS }}
-          --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
-          --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
-          --target-sha ${{ env.TARGET_SHA }}
-          --github-run-id $GITHUB_RUN_ID
-          --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
-          --app-platform ${{ matrix.app-platform }}
-          --instrumentation-type ${{ matrix.instrumentation-type }}
-          --max-benchmarks-to-keep ${{ env.MAX_BENCHMARKS_TO_KEEP }}
-      - name: Commit snapshots to repository
-        run: |-
+      - name: Get a snapshot of metrics and commit them to the repository
+        run: |
+          python3 .github/scripts/performance-tests/produce-metric-widget-images.py \
+            --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }} \
+            --logs-namespace ${{ env.LOGS_NAMESPACE }} \
+            --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }} \
+            --num-of-cpus ${{ env.NUM_OF_CPUS }} \
+            --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}" \
+            --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }} \
+            --target-sha ${{ env.TARGET_SHA }} \
+            --github-run-id ${GITHUB_RUN_ID} \
+            --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }} \
+            --app-platform ${{ matrix.app-platform }} \
+            --instrumentation-type ${{ matrix.instrumentation-type }} \
+            --max-benchmarks-to-keep ${{ env.MAX_BENCHMARKS_TO_KEEP }} \
+            --github-repository ${GITHUB_REPOSITORY}
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com";
           git config user.name "GitHub Actions";
           git fetch;
@@ -222,7 +222,7 @@ jobs:
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
           --target-sha ${{ env.TARGET_SHA }}
-          --github-run-id $GITHUB_RUN_ID
+          --github-run-id ${GITHUB_RUN_ID}
       - name: Is this the first time we run Performance Tests for this commit?
         continue-on-error: true
         id: check-is-first-time-reporting-commit

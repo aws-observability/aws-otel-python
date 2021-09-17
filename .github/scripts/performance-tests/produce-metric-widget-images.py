@@ -156,7 +156,7 @@ def parse_args():
 
         Examples:
 
-            --github-run-id=$GITHUB_RUN_ID
+            --github-run-id=${GITHUB_RUN_ID}
         """,
     )
 
@@ -197,6 +197,19 @@ def parse_args():
         Examples:
 
             --max-benchmarks-to-keep=100
+        """,
+    )
+
+    parser.add_argument(
+        "--github-repository",
+        required=True,
+        help="""
+        The repository of the current workflow. Used to generate a log message
+        with the location of the generated snapshot.
+
+        Examples:
+
+            --github-repository=${GITHUB_REPOSITORY}
         """,
     )
 
@@ -339,11 +352,18 @@ if __name__ == "__main__":
             MetricWidget=json.dumps(metric_widget_params),
         )["MetricWidgetImage"]
 
+        snapshot_location = f"{SOAK_TESTS_SNAPSHOTS_DIR}/{args.target_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png"
+
         with open(
-            f"{SOAK_TESTS_SNAPSHOTS_DIR}/{args.target_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png",
+            snapshot_location,
             "wb",
         ) as file_context:
             file_context.write(metric_widget_image_bytes)
+
+        logger.info(
+            f"Will create a snapshot at URL: %s",
+            "https://github.com/{args.github_repository}/blob/gh-pages/{snapshot_location}",
+        )
 
     # Delete oldest snapshots
 
