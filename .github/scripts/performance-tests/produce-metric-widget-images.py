@@ -50,6 +50,20 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--total-memory-threshold",
+        required=True,
+        type=int,
+        help="""
+        The threshold the Total Memory (in bytes) must stay under to not trigger
+        the alarm.
+
+        Examples:
+
+            --total-memory-threshold=$(echo 1.5 \* 2^30 | bc)
+        """,
+    )
+
+    parser.add_argument(
         "--logs-namespace",
         required=True,
         help="""
@@ -101,20 +115,6 @@ def parse_args():
         Examples:
 
             --app-process-command-line-dimension-value='/usr/local/bin/python3 application.py'
-        """,
-    )
-
-    parser.add_argument(
-        "--total-memory-threshold",
-        required=True,
-        type=int,
-        help="""
-        The threshold the Total Memory (in bytes) must stay under to not trigger
-        the alarm.
-
-        Examples:
-
-            --total-memory-threshold=$(echo 1.5 \* 2^30 | bc)
         """,
     )
 

@@ -30,10 +30,10 @@ COMMON_ALARM_API_PARAMETERS = {
 }
 
 CPU_LOAD_ALARM_NAME_PREFIX = (
-    "OTel Performance Test - CPU Load Percentage Spike - Python"
+    "OTel Performance Test - CPU Load Percentage Spike"
 )
 TOTAL_MEMORY_ALARM_NAME_PREFIX = (
-    "OTel Performance Test - Virtual Memory Usage Spike - Python"
+    "OTel Performance Test - Virtual Memory Usage Spike"
 )
 
 # Docker Client API Constants
@@ -62,6 +62,20 @@ def parse_args():
         Examples:
 
             --cpu-load-threshold=75
+        """,
+    )
+
+    parser.add_argument(
+        "--total-memory-threshold",
+        required=True,
+        type=int,
+        help="""
+        The threshold the Total Memory (in bytes) must stay under to not trigger
+        the alarm.
+
+        Examples:
+
+            --total-memory-threshold=$(echo 1.5 \* 2^30 | bc)
         """,
     )
 
@@ -117,20 +131,6 @@ def parse_args():
         Examples:
 
             --app-process-command-line-dimension-value='/usr/local/bin/python3 application.py'
-        """,
-    )
-
-    parser.add_argument(
-        "--total-memory-threshold",
-        required=True,
-        type=int,
-        help="""
-        The threshold the Total Memory (in bytes) must stay under to not trigger
-        the alarm.
-
-        Examples:
-
-            --total-memory-threshold=$(echo 1.5 \* 2^30 | bc)
         """,
     )
 

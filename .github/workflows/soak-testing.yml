@@ -208,11 +208,11 @@ jobs:
         run: |
           python3 .github/scripts/performance-tests/produce-metric-widget-images.py \
             --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }} \
+            --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }} \
             --logs-namespace ${{ env.LOGS_NAMESPACE }} \
             --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }} \
             --num-of-cpus ${{ env.NUM_OF_CPUS }} \
             --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}" \
-            --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }} \
             --target-sha ${{ env.TARGET_SHA }} \
             --github-run-id ${GITHUB_RUN_ID} \
             --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }} \
@@ -231,11 +231,11 @@ jobs:
       - name: Prepare Performance Test results as JSON output
         run: python3 .github/scripts/performance-tests/produce-performance-test-results.py
           --cpu-load-threshold ${{ env.CPU_LOAD_THRESHOLD }}
+          --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --logs-namespace ${{ env.LOGS_NAMESPACE }}
           --metrics-period ${{ env.HOSTMETRICS_INTERVAL_SECS }}
           --num-of-cpus ${{ env.NUM_OF_CPUS }}
           --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
-          --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
           --target-sha ${{ env.TARGET_SHA }}
           --github-run-id ${GITHUB_RUN_ID}
