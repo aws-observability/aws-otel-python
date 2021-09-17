@@ -7,7 +7,7 @@ from statistics import mean
 import boto3
 
 logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
+    format="%(asctime)-8s %(levelname)-8s %(message)s",
     level=logging.INFO,
     datefmt="%FT%TZ",
 )
@@ -76,7 +76,7 @@ def parse_args():
         type=int,
         help="""
         The interval at which performance metrics are collected. This is the
-        period used by the metrics that the alarms monitor and is the interval
+        period used for the metrics monitored by the alarms and is the interval
         with which the script polls the Performance Test alarms (in seconds).
 
         Examples:

@@ -10,7 +10,7 @@ from pathlib import Path
 import boto3
 
 logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
+    format="%(asctime)-8s %(levelname)-8s %(message)s",
     level=logging.INFO,
     datefmt="%FT%TZ",
 )
