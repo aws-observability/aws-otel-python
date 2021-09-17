@@ -76,7 +76,7 @@ def parse_args():
         type=int,
         help="""
         The interval at which performance metrics are collected. This is the
-        period used for the metrics monitored by the alarms and is the interval
+        period used by the metrics that the alarms monitor and is the interval
         with which the script polls the Performance Test alarms (in seconds).
 
         Examples:
