@@ -162,8 +162,8 @@ jobs:
           --num-of-cpus ${{ env.NUM_OF_CPUS }}
           --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
-          --github-sha ${{ github.sha }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
+          --github-sha ${{ github.sha }}
           --github-run-id $GITHUB_RUN_ID
           --app-platform ${{ matrix.app-platform }}
           --instrumentation-type ${{ matrix.instrumentation-type }}

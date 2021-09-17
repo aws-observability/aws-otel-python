@@ -131,32 +131,6 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--app-platform",
-        required=True,
-        help="""
-        The framework platform for the Sample App which produced the performance
-        metrics. Used to create the name of the snapshot PNG file.
-
-        Examples:
-
-            --app-platform=flask
-        """,
-    )
-
-    parser.add_argument(
-        "--instrumentation-type",
-        required=True,
-        help="""
-        The framework platform for the Sample App which produced the performance
-        metrics. Used to create the name of the snapshot PNG file.
-
-        Examples:
-
-            --instrumentation-type=auto
-        """,
-    )
-
-    parser.add_argument(
         "--github-sha",
         required=True,
         help="""
@@ -180,6 +154,32 @@ def parse_args():
         Examples:
 
             --github-run-id=$GITHUB_RUN_ID
+        """,
+    )
+
+    parser.add_argument(
+        "--app-platform",
+        required=True,
+        help="""
+        The framework platform for the Sample App which produced the performance
+        metrics. Used to create the name of the snapshot PNG file.
+
+        Examples:
+
+            --app-platform=flask
+        """,
+    )
+
+    parser.add_argument(
+        "--instrumentation-type",
+        required=True,
+        help="""
+        The framework platform for the Sample App which produced the performance
+        metrics. Used to create the name of the snapshot PNG file.
+
+        Examples:
+
+            --instrumentation-type=auto
         """,
     )
 
