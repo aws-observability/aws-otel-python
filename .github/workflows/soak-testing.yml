@@ -15,6 +15,7 @@ env:
   HOSTMETRICS_INTERVAL_SECS: 600
   CPU_LOAD_THRESHOLD: 71
   TOTAL_MEMORY_THRESHOLD: 1610612736
+  MAX_BENCHMARKS_TO_KEEP: 100
   # TODO: We might be able to adapt the "Soak Tests" to be "Overhead Tests".
   # This means monitoring the Sample App's performance using high levels of TPS
   # for the Load Generator over a shorter period of testing time. For example:
@@ -38,11 +39,13 @@ jobs:
       # NOTE: The configuration of `APP_PATH` is repo dependent
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
       IMAGE_SUFFIX: ${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
-      # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
-      # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
+      # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run
+      # multiple Soak Tests at a time, which we probably will not do?). If we do
+      # need it, move to steps below to access $GITHUB_RUN_ID.
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
-      # NOTE: The configuration of `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` is repo dependent
+      # NOTE: The configuration of `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` is
+      # repo dependent
       - name: Configure Auto Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'auto' }}
         run: |-
@@ -161,9 +164,10 @@ jobs:
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --github-sha ${{ github.sha }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
+          --github-run-id $GITHUB_RUN_ID
           --app-platform ${{ matrix.app-platform }}
           --instrumentation-type ${{ matrix.instrumentation-type }}
-          --github-run-id $GITHUB_RUN_ID
+          --max-benchmarks-to-keep ${{ env.MAX_BENCHMARKS_TO_KEEP }}
       - name: Commit snapshots to repository
         run: |-
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com";
@@ -209,7 +213,7 @@ jobs:
           tool: custombenchmark
           output-file-path: output.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          max-items-in-chart: 100
+          max-items-in-chart: ${{ env.MAX_BENCHMARKS_TO_KEEP }}
           alert-threshold: 175%
           # Does not work as expected, see:
           # https://github.com/open-telemetry/opentelemetry-python/pull/1478

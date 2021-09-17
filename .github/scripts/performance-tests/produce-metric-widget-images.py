@@ -1,6 +1,9 @@
 import argparse
 import json
 import logging
+import os
+import shutil
+from heapq import nsmallest
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -9,10 +12,12 @@ import boto3
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
+    datefmt="%FT%TZ",
 )
 
 logger = logging.getLogger(__file__)
+
+SOAK_TESTS_SNAPSHOTS_DIR = "soak-tests/snapshots"
 
 # AWS Client API Constants
 
@@ -167,13 +172,28 @@ def parse_args():
     parser.add_argument(
         "--github-run-id",
         required=True,
+        type=int,
         help="""
-        The Id for the current GitHub workflow run. Used to create the
-        name of the snapshot PNG file.
+        The Id for the current GitHub workflow run. Used to create the name of
+        the snapshot PNG file.
 
         Examples:
 
             --github-run-id=$GITHUB_RUN_ID
+        """,
+    )
+
+    parser.add_argument(
+        "--max-benchmarks-to-keep",
+        required=True,
+        type=int,
+        help="""
+        The max number of benchmarks to keep. Used to limit the size of the
+        snapshots folder by deleting older results.
+
+        Examples:
+
+            --max-benchmarks-to-keep=100
         """,
     )
 
@@ -293,7 +313,7 @@ if __name__ == "__main__":
         ),
     ]
 
-    Path(f"soak-tests/snapshots/{ args.github_sha }").mkdir(
+    Path(f"{SOAK_TESTS_SNAPSHOTS_DIR}/{ args.github_sha }").mkdir(
         parents=True, exist_ok=True
     )
 
@@ -305,9 +325,22 @@ if __name__ == "__main__":
         )["MetricWidgetImage"]
 
         with open(
-            f"soak-tests/snapshots/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png",
+            f"{SOAK_TESTS_SNAPSHOTS_DIR}/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png",
             "wb",
         ) as file_context:
             file_context.write(metric_widget_image_bytes)
+
+    # Delete oldest snapshots
+
+    snapshot_dirs_length = len(os.listdir(SOAK_TESTS_SNAPSHOTS_DIR))
+
+    if snapshot_dirs_length > args.max_benchmarks_to_keep:
+        oldest_snapshot_dirs = nsmallest(
+            snapshot_dirs_length - args.max_benchmarks_to_keep,
+            Path(SOAK_TESTS_SNAPSHOTS_DIR).iterdir(),
+            key=os.path.getmtime,
+        )
+        for snapshot_dir in oldest_snapshot_dirs:
+            shutil.rmtree(snapshot_dir, ignore_errors=True)
 
     logger.info("Done creating metric widget images.")

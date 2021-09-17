@@ -9,7 +9,7 @@ import docker
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
+    datefmt="%FT%TZ",
 )
 
 logger = logging.getLogger(__file__)
@@ -296,6 +296,7 @@ if __name__ == "__main__":
     logger.info(
         "Begin polling alarms. Continue until Load Generator completes."
     )
+
     while (
         docker_client.containers.get(LOAD_GENERATOR_CONTAINER_NAME).attrs[
             "State"
