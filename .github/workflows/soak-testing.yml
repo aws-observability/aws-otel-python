@@ -165,8 +165,7 @@ jobs:
         run: |-
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com";
           git config user.name "GitHub Actions";
-          git checkout main;
-          git pull;
+          git fetch;
           git checkout gh-pages;
           git add soak-tests/snapshots;
           git commit -m "Adding Soak Tests Snapshots from ${{ github.sha }}";
@@ -181,14 +180,22 @@ jobs:
           --app-process-command-line-dimension-value "${{ env.APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE }}"
           --total-memory-threshold ${{ env.TOTAL_MEMORY_THRESHOLD }}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
-      - name: Check if we already have Performance Test data for this commit
+      - name: Is this the first time we run Performance Tests for this commit?
+        if: ${{ github.event_name == 'schedule' }}
         continue-on-error: true
         id: check-performance-tests-already-reported
         run: |
           git checkout gh-pages;
-          HAS_RESULTS_ALREADY=$(grep --quiet ${{ github.sha }} soak-tests/per-commit-overall-results/data.js; echo $?);
+          HAS_RESULTS_ALREADY=$(
+            sed 's/window.BENCHMARK_DATA = //' soak-tests/per-commit-overall-results/data.js |
+            jq "
+              .entries |
+              .\"Soak Test Results - sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}\" |
+              any(.commit.id == \"${{ env.TARGET_SHA }}\")
+            " || echo false
+          );
           git checkout main;
-          exit $HAS_RESULTS_ALREADY
+          [[ $HAS_RESULTS_ALREADY == false ]]
       - name: Graph and Report Performance Test Averages result
         uses: NathanielRN/github-action-benchmark@v1.8.3-alpha3
         if: steps.check-performance-tests-already-reported.outcome == 'failure'
