@@ -230,7 +230,7 @@ jobs:
           INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          filename: .github/issue-templates/FAILURE-DURING-SOAK_TESTS.md
+          filename: .github/auto-issue-templates/failure-during-soak_tests.md
       - name: Publish Issue if failed AFTER Performance Tests
         uses: NathanielRN/create-an-issue@v2.5.1-alpha2
         if: steps.check-failure-after-performance-tests.outcome == 'failure'
@@ -239,7 +239,7 @@ jobs:
           INSTRUMENTATION_TYPE: ${{ matrix.instrumentation-type }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          filename: .github/issue-templates/FAILURE-AFTER-SOAK_TESTS.md
+          filename: .github/auto-issue-templates/failure-after-soak_tests.md
       - name: Check for Performance Degradation either DURING or AFTER Performance Tests
         if: steps.check-failure-during-performance-tests.outcome == 'failure' || steps.check-failure-after-performance-tests.outcome == 'failure'
         run: >-
