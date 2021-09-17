@@ -362,7 +362,7 @@ if __name__ == "__main__":
 
         logger.info(
             f"Will create a snapshot at URL: %s",
-            "https://github.com/{args.github_repository}/blob/gh-pages/{snapshot_location}",
+            f"https://github.com/{args.github_repository}/blob/gh-pages/{snapshot_location}",
         )
 
     # Delete oldest snapshots

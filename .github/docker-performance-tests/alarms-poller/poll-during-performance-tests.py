@@ -19,6 +19,7 @@ logger = logging.getLogger(__file__)
 COMMIT_SHA_DIMENSION_NAME = "commit_sha"
 GITHUB_RUN_ID_DIMENSION_NAME = "github_run_id"
 PROCESS_COMMAND_LINE_DIMENSION_NAME = "process.command_line"
+
 METRIC_DATA_STATISTIC = "Sum"
 
 COMMON_ALARM_API_PARAMETERS = {
@@ -37,9 +38,9 @@ TOTAL_MEMORY_ALARM_NAME_PREFIX = (
 
 # Docker Client API Constants
 
-LOAD_GENERATOR_CONTAINER_NAME = "docker-performance-tests_load-generator_1"
 APP_CONTAINER_NAME = "docker-performance-tests_app_1"
 COLLECTOR_CONTAINER_NAME = "docker-performance-tests_otel_1"
+LOAD_GENERATOR_CONTAINER_NAME = "docker-performance-tests_load-generator_1"
 
 
 def parse_args():
@@ -188,7 +189,25 @@ if __name__ == "__main__":
         ]
         != "running"
     ):
-        logger.error("Failing because Sample App failed to start.")
+        logger.error("Failing because Sample App was not running.")
+        sys.exit(1)
+
+    if (
+        docker_client.containers.get(COLLECTOR_CONTAINER_NAME).attrs["State"][
+            "Status"
+        ]
+        != "running"
+    ):
+        logger.error("Failing because Collector was not running.")
+        sys.exit(1)
+
+    if (
+        docker_client.containers.get(LOAD_GENERATOR_CONTAINER_NAME).attrs[
+            "State"
+        ]["Status"]
+        != "running"
+    ):
+        logger.error("Failing because Load Generator was not running.")
         sys.exit(1)
 
     args = parse_args()
@@ -212,7 +231,7 @@ if __name__ == "__main__":
                         {
                             "Name": GITHUB_RUN_ID_DIMENSION_NAME,
                             "Value": args.github_run_id,
-                        }
+                        },
                     ],
                 },
                 "Stat": METRIC_DATA_STATISTIC,
@@ -249,7 +268,7 @@ if __name__ == "__main__":
                         {
                             "Name": GITHUB_RUN_ID_DIMENSION_NAME,
                             "Value": args.github_run_id,
-                        }
+                        },
                     ],
                 },
                 "Stat": METRIC_DATA_STATISTIC,
@@ -276,7 +295,7 @@ if __name__ == "__main__":
                         {
                             "Name": GITHUB_RUN_ID_DIMENSION_NAME,
                             "Value": args.github_run_id,
-                        }
+                        },
                     ],
                 },
                 "Stat": METRIC_DATA_STATISTIC,
