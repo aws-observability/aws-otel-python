@@ -34,7 +34,7 @@ exporters:
     region: ${AWS_DEFAULT_REGION}
     namespace: ${LOGS_NAMESPACE}
     log_group_name: ${LOG_GROUP_NAME}
-    log_stream_name: ${IMAGE_SUFFIX}
+    log_stream_name: sample-app-${IMAGE_SUFFIX}
     resource_to_telemetry_conversion:
       enabled: true
     dimension_rollup_option: NoDimensionRollup

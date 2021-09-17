@@ -15,9 +15,10 @@ env:
   HOSTMETRICS_INTERVAL_SECS: 600
   CPU_LOAD_THRESHOLD: 71
   TOTAL_MEMORY_THRESHOLD: 1610612736
-  # TODO: We might be able to adapt the "Soak Tests" to be "Overhead Tests". This means monitoring the Sample App's
-  # performance using high levels of TPS for the Load Generator over a shorter period of testing time.
-  # For example: https://github.com/aws-observability/aws-otel-collector/blob/main/docs/performance_model.md
+  # TODO: We might be able to adapt the "Soak Tests" to be "Overhead Tests".
+  # This means monitoring the Sample App's performance using high levels of TPS
+  # for the Load Generator over a shorter period of testing time. For example:
+  # https://github.com/aws-observability/aws-otel-collector/blob/main/docs/performance_model.md
   # THROUGHPUT_PER_SECOND: TBD?
 
 jobs:
@@ -36,7 +37,7 @@ jobs:
     env:
       # NOTE: The configuration of `APP_PATH` is repo dependent
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
-      IMAGE_SUFFIX: sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
+      IMAGE_SUFFIX: ${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ github.sha }}
       # TODO: Does the LOGS_NAMESPACE need a `-$GITHUB_RUN_ID`? (Only if we run multiple Soak Tests at a time,
       # which we probably will not do?). If we do need it, move to steps below to access $GITHUB_RUN_ID.
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
@@ -90,15 +91,17 @@ jobs:
         id: docker-image-metadata
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ghcr.io/${{ github.repository }}-${{ env.IMAGE_SUFFIX }}
+          images: ghcr.io/${{ github.repository }}-sample-app-${{ env.IMAGE_SUFFIX }}
           tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
-      # TODO: Instead of building, publishing, and pulling a Sample App Docker Image in `docker-compose`. Could we
-      # just build the image in `docker-compose` directly using `build/context`? We would lose the public Docker Image
-      # but we would avoid polluting the published packages and anyone could build from the commit if they wanted to.
+      # TODO: Instead of building, publishing, and pulling a Sample App Docker
+      # Image in `docker-compose`. Could we just build the image in
+      # `docker-compose` directly using `build/context`? We would lose the
+      # public Docker Image but we would avoid polluting the published packages
+      # and anyone could build from the commit if they wanted to.
       - name: Build and Push Docker image
         uses: docker/build-push-action@v2
         with:
@@ -208,7 +211,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           max-items-in-chart: 100
           alert-threshold: 175%
-          # Does not work as expected, see: https://github.com/open-telemetry/opentelemetry-python/pull/1478
+          # Does not work as expected, see:
+          # https://github.com/open-telemetry/opentelemetry-python/pull/1478
           # comment-always: true
           fail-on-alert: true
           auto-push: ${{ github.ref == 'refs/heads/main' }}

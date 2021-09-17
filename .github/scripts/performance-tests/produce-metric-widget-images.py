@@ -299,13 +299,13 @@ if __name__ == "__main__":
 
     aws_client = boto3.client("cloudwatch")
 
-    for widget_type, metric_widget_params in metric_widget_images:
+    for snapshot_type, metric_widget_params in metric_widget_images:
         metric_widget_image_bytes = aws_client.get_metric_widget_image(
             MetricWidget=json.dumps(metric_widget_params),
         )["MetricWidgetImage"]
 
         with open(
-            f"soak-tests/snapshots/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{widget_type}-soak-{args.github_run_id}.png",
+            f"soak-tests/snapshots/{args.github_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png",
             "wb",
         ) as file_context:
             file_context.write(metric_widget_image_bytes)
