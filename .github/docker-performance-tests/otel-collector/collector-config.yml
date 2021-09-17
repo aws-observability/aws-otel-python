@@ -26,6 +26,18 @@ processors:
         resource_attributes:
           - Key: process.command_line
             Value: ${APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE}
+  metricstransform:
+    transforms:
+      - include: process.*
+        match_type: regexp
+        action: update
+        operations:
+          - action: add_label
+            new_label: commit_sha
+            new_value: ${TARGET_SHA}
+          - action: add_label
+            new_label: github_run_id
+            new_value: ${GITHUB_RUN_ID}
 
 exporters:
   logging:
@@ -39,7 +51,13 @@ exporters:
       enabled: true
     dimension_rollup_option: NoDimensionRollup
     metric_declarations:
-      - dimensions: [[process.command_line]]
+      - dimensions: [
+          [
+            process.command_line,
+            commit_sha,
+            github_run_id
+          ]
+        ]
         metric_name_selectors:
           - process.cpu.time
           # - process.disk.io
@@ -58,5 +76,6 @@ service:
         - hostmetrics
       processors:
         - filter
+        - metricstransform
       exporters:
         - awsemf

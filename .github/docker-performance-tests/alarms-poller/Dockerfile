@@ -10,5 +10,6 @@ CMD python ./poll-during-performance-tests.py --cpu-load-threshold $CPU_LOAD_THR
                                               --num-of-cpus $NUM_OF_CPUS \
                                               --app-process-command-line-dimension-value "$APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE" \
                                               --total-memory-threshold $TOTAL_MEMORY_THRESHOLD \
-                                              --app-platform $APP_PLATFORM \
-                                              --instrumentation-type $INSTRUMENTATION_TYPE
+                                              --target-sha $TARGET_SHA \
+                                              --github-run-id $GITHUB_RUN_ID \
+                                              --image-suffix $IMAGE_SUFFIX
