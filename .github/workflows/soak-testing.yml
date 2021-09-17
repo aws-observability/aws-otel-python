@@ -54,11 +54,11 @@ jobs:
           echo "TEST_DURATION_MINUTES=${{ github.event.inputs.test_duration_minutes || env.DEFAULT_TEST_DURATION_MINUTES }}" | tee --append $GITHUB_ENV;
       # NOTE: The configuration of `APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE` is
       # repo dependent
-      - name: Use input as commit SHA
+      - name: Use INPUT as commit SHA
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "TARGET_SHA=${{ github.event.inputs.target_commit_sha }}" | tee --append $GITHUB_ENV;
-      - name: Use latest as commit SHA
+      - name: Use LATEST as commit SHA
         if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           echo "TARGET_SHA=${{ github.sha }}" | tee --append $GITHUB_ENV;
