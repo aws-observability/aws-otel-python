@@ -50,13 +50,13 @@ jobs:
         if: ${{ matrix.instrumentation-type == 'auto' }}
         run: |-
           echo 'APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE<<EOF' >> $GITHUB_ENV
-          echo '/usr/local/bin/python3 application.py' >> $GITHUB_ENV
+          echo '/usr/local/bin/python3 application.py' | tee --append $GITHUB_ENV;
           echo 'EOF' >> $GITHUB_ENV
       - name: Configure Manual Instrumentation-Type Specific Values
         if: ${{ matrix.instrumentation-type == 'manual' }}
         run: |-
           echo 'APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE<<EOF' >> $GITHUB_ENV
-          echo '/usr/local/bin/python3 /app/application.py' >> $GITHUB_ENV
+          echo '/usr/local/bin/python3 /app/application.py' | tee --append $GITHUB_ENV;
           echo 'EOF' >> $GITHUB_ENV
       - name: Clone This Repo First
         uses: actions/checkout@v2
@@ -74,7 +74,7 @@ jobs:
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
       - name: Configure Performance Test environment variables
         run: |-
-          echo "NUM_OF_CPUS=$(nproc --all)" >> $GITHUB_ENV;
+          echo "NUM_OF_CPUS=$(nproc --all)" | tee --append $GITHUB_ENV;
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v1
         with:
