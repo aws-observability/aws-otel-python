@@ -49,7 +49,20 @@ jobs:
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
       LOGS_NAMESPACE: ${{ github.repository }}/soak-tests-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}
     steps:
-      - name: Clone This Repo First
+    # MARK: - GitHub Workflow Event Type Specific Values
+
+      - name: Use INPUT as commit SHA
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "TARGET_SHA=${{ github.event.inputs.target_commit_sha }}" | tee --append $GITHUB_ENV;
+      - name: Use LATEST as commit SHA
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: |
+          echo "TARGET_SHA=${{ github.sha }}" | tee --append $GITHUB_ENV;
+      - name: Configure Performance Test Duration
+        run: |
+          echo "TEST_DURATION_MINUTES=${{ github.event.inputs.test_duration_minutes || env.DEFAULT_TEST_DURATION_MINUTES }}" | tee --append $GITHUB_ENV;
+      - name: Clone This Repo @ ${{ env.TARGET_SHA }}
         uses: actions/checkout@v2
         with:
           ref: ${{ env.TARGET_SHA }}
@@ -93,20 +106,6 @@ jobs:
         with:
           repository: open-telemetry/opentelemetry-python-contrib
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
-
-    # MARK: - GitHub Workflow Event Type Specific Values
-
-      - name: Use INPUT as commit SHA
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          echo "TARGET_SHA=${{ github.event.inputs.target_commit_sha }}" | tee --append $GITHUB_ENV;
-      - name: Use LATEST as commit SHA
-        if: ${{ github.event_name != 'workflow_dispatch' }}
-        run: |
-          echo "TARGET_SHA=${{ github.sha }}" | tee --append $GITHUB_ENV;
-      - name: Configure Performance Test Duration
-        run: |
-          echo "TEST_DURATION_MINUTES=${{ github.event.inputs.test_duration_minutes || env.DEFAULT_TEST_DURATION_MINUTES }}" | tee --append $GITHUB_ENV;
 
     # MARK: - Build and Push Sample App
 
