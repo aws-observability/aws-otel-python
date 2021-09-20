@@ -30,8 +30,8 @@ METRIC_DATA_STATISTIC = "Sum"
 def parse_args():
     parser = argparse.ArgumentParser(
         description="""
-        produce-performance-test-results.py produces overall results for the
-        performance tests that were just run as JSON output.
+        produce_metric_widget_images.py produces snapshot graphs of the
+        metrics used in the performance tests that were just run.
         """
     )
 
