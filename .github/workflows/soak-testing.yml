@@ -194,12 +194,13 @@ jobs:
           # GITHUB_RUN_ID
         run: |-
           docker-compose up --build;
-          echo "RUN_TESTS_EXIT_CODE=$(
+          RUN_TESTS_EXIT_CODE=$(
             docker inspect $(
               docker ps --quiet --all --filter "name=docker-performance-tests_alarms-poller"
             ) --format="{{.State.ExitCode}}"
-          )" | tee --append $GITHUB_ENV;
-          exit ${{ env.RUN_TESTS_EXIT_CODE }}
+          );
+          echo "RUN_TESTS_EXIT_CODE=$RUN_TESTS_EXIT_CODE" | tee --append $GITHUB_ENV;
+          exit $RUN_TESTS_EXIT_CODE;
       - name: Fail early if Soak Tests failed to start
         if: ${{ env.RUN_TESTS_EXIT_CODE == 1 }}
         run: exit 1;
