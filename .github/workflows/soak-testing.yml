@@ -175,7 +175,7 @@ jobs:
         env:
           APP_IMAGE: ${{ fromJSON(steps.docker-image-metadata.outputs.json).tags[0] }}
           INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
-          LISTEN_ADDRESS: 0.0.0.0:8080
+          LISTEN_ADDRESS_PORT: 8080
           LOG_GROUP_NAME: otel-sdk-performance-tests
           TARGET_SHA: ${{ env.TARGET_SHA }}
           # Also uses:
@@ -241,9 +241,9 @@ jobs:
           --target-sha ${{ env.TARGET_SHA }}
           --github-run-id ${GITHUB_RUN_ID}
           --test-duration-minutes ${{ env.TEST_DURATION_MINUTES }}
-      - name: Is this the first time we run Performance Tests for this commit?
+      - name: Do we already have Performance Test graph results for this commit?
         continue-on-error: true
-        id: check-is-first-time-reporting-commit
+        id: check-already-have-performance-results
         run: |
           git checkout gh-pages;
           HAS_RESULTS_ALREADY=$(
@@ -255,7 +255,7 @@ jobs:
             " || echo false
           );
           git checkout main;
-          [[ $HAS_RESULTS_ALREADY == false ]]
+          [[ $HAS_RESULTS_ALREADY == true ]]
       - name: Graph and Report Performance Test Averages result
         uses: NathanielRN/github-action-benchmark@v1.8.3-alpha3
         continue-on-error: true
@@ -272,7 +272,7 @@ jobs:
           # comment-always: true
           fail-on-alert: true
           auto-push: ${{ github.event_name == 'schedule' &&
-            steps.check-is-first-time-reporting-commit.outcome == 'success' &&
+            steps.check-already-have-performance-results.outcome == 'failure' &&
             github.ref == 'refs/heads/main' }}
           gh-pages-branch: gh-pages
           benchmark-data-dir-path: soak-tests/per-commit-overall-results

@@ -29,7 +29,7 @@ services:
     image: ${APP_IMAGE}
     environment:
       - INSTANCE_ID
-      - LISTEN_ADDRESS
+      - LISTEN_ADDRESS=0.0.0.0:${LISTEN_ADDRESS_PORT}
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
@@ -44,6 +44,7 @@ services:
     build:
       context: ./load-generator
     environment:
+      - TARGET_ADDRESS=app:${LISTEN_ADDRESS_PORT}
       - TEST_DURATION_MINUTES
     depends_on:
       - otel
