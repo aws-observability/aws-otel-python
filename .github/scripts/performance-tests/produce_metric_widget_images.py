@@ -17,7 +17,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__file__)
 
-SOAK_TESTS_SNAPSHOTS_DIR = "soak-tests/snapshots"
+SOAK_TESTS_SNAPSHOTS_COMMITS_DIR = "soak-tests/snapshots/commits"
 
 # AWS Client API Constants
 
@@ -192,7 +192,7 @@ def parse_args():
         type=int,
         help="""
         The max number of benchmarks to keep. Used to limit the size of the
-        snapshots folder by deleting older results.
+        snapshots/commits folder by deleting older results.
 
         Examples:
 
@@ -341,9 +341,9 @@ if __name__ == "__main__":
         ),
     ]
 
-    Path(f"{SOAK_TESTS_SNAPSHOTS_DIR}/{ args.target_sha }").mkdir(
-        parents=True, exist_ok=True
-    )
+    snapshots_dir = f"{SOAK_TESTS_SNAPSHOTS_COMMITS_DIR}/{ args.target_sha }/runs/{args.github_run_id}/{args.app_platform}"
+
+    Path(snapshots_dir).mkdir(parents=True, exist_ok=True)
 
     aws_client = boto3.client("cloudwatch")
 
@@ -352,7 +352,9 @@ if __name__ == "__main__":
             MetricWidget=json.dumps(metric_widget_params),
         )["MetricWidgetImage"]
 
-        snapshot_location = f"{SOAK_TESTS_SNAPSHOTS_DIR}/{args.target_sha}/{args.app_platform}-{args.instrumentation_type}-{snapshot_type}-soak-{args.github_run_id}.png"
+        snapshot_location = (
+            f"{snapshots_dir}/{args.instrumentation_type}-{snapshot_type}.png"
+        )
 
         with open(
             snapshot_location,
@@ -361,21 +363,20 @@ if __name__ == "__main__":
             file_context.write(metric_widget_image_bytes)
 
         logger.info(
-            f"Will create a snapshot at URL: %s",
-            f"https://github.com/{args.github_repository}/blob/gh-pages/{snapshot_location}",
+            f"Will create a snapshot at URL: https://github.com/{args.github_repository}/blob/gh-pages/{snapshot_location}",
         )
 
     # Delete oldest snapshots
 
-    snapshot_dirs_length = len(os.listdir(SOAK_TESTS_SNAPSHOTS_DIR))
+    snapshot_dirs_length = len(os.listdir(SOAK_TESTS_SNAPSHOTS_COMMITS_DIR))
 
     if snapshot_dirs_length > args.max_benchmarks_to_keep:
         oldest_snapshot_dirs = nsmallest(
             snapshot_dirs_length - args.max_benchmarks_to_keep,
-            Path(SOAK_TESTS_SNAPSHOTS_DIR).iterdir(),
+            Path(SOAK_TESTS_SNAPSHOTS_COMMITS_DIR).iterdir(),
             key=os.path.getmtime,
         )
-        for snapshot_dir in oldest_snapshot_dirs:
-            shutil.rmtree(snapshot_dir, ignore_errors=True)
+        for old_snapshots_dir in oldest_snapshot_dirs:
+            shutil.rmtree(old_snapshots_dir, ignore_errors=True)
 
     logger.info("Done creating metric widget images.")
