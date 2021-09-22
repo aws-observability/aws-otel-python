@@ -12,4 +12,4 @@ CMD python ./poll_during_performance_tests.py --logs-namespace $LOGS_NAMESPACE \
                                               --github-run-id $GITHUB_RUN_ID \
                                               --cpu-load-threshold $CPU_LOAD_THRESHOLD \
                                               --total-memory-threshold $TOTAL_MEMORY_THRESHOLD \
-                                              --image-suffix $IMAGE_SUFFIX
+                                              --matrix-commit-combo $MATRIX_COMMIT_COMBO

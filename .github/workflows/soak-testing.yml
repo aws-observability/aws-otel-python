@@ -37,7 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
       issues: write
     strategy:
       fail-fast: false
@@ -109,51 +108,9 @@ jobs:
 
     # MARK: - Build and Push Sample App
 
-      # WARNING: In an edge case, if two jobs use the same commit at the same
-      # time, they will share an `IMAGE_SUFFIX` and race to push and pull Docker
-      # Images!
-      - name: Create Image Suffix
+      - name: Create unique combination using matrix + commit parameters
         run: |
-          echo "IMAGE_SUFFIX=${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ env.TARGET_SHA }}" | tee --append $GITHUB_ENV;
-      - name: Log in to the GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ env.TARGET_SHA }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-      - name: Extract metadata (tags, labels) for Docker
-        id: docker-image-metadata
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ghcr.io/${{ github.repository }}-sample-app-${{ env.IMAGE_SUFFIX }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-      # TODO: Instead of building, publishing, and pulling a Sample App Docker
-      # Image in `docker-compose`. Could we just build the image in
-      # `docker-compose` directly using `build/context`? We would lose the
-      # public Docker Image but we would avoid polluting the published packages
-      # and anyone could build from the commit if they wanted to.
-      - name: Build and Push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          context: ${{ env.APP_PATH }}
-          tags: ${{ steps.docker-image-metadata.outputs.tags }}
-          labels: ${{ steps.docker-image-metadata.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          echo "MATRIX_COMMIT_COMBO=${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}-${{ env.TARGET_SHA }}" | tee --append $GITHUB_ENV;
 
     # MARK: - Run Performance Tests
 
@@ -173,12 +130,12 @@ jobs:
         continue-on-error: true
         working-directory: .github/docker-performance-tests
         env:
-          APP_IMAGE: ${{ fromJSON(steps.docker-image-metadata.outputs.json).tags[0] }}
           INSTANCE_ID: ${{ github.run_id }}-${{ github.run_number }}
           LISTEN_ADDRESS_PORT: 8080
           LOG_GROUP_NAME: otel-sdk-performance-tests
-          TARGET_SHA: ${{ env.TARGET_SHA }}
           # Also uses:
+          # APP_PATH
+          # TARGET_SHA
           # LOGS_NAMESPACE
           # LOG_STREAM_NAME
           # APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE
@@ -189,7 +146,7 @@ jobs:
           # CPU_LOAD_THRESHOLD
           # TOTAL_MEMORY_THRESHOLD
           # AWS_DEFAULT_REGION
-          # IMAGE_SUFFIX
+          # MATRIX_COMMIT_COMBO
           # GITHUB_RUN_ID
         run: |-
           docker-compose up --build;
