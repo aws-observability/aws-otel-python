@@ -11,7 +11,7 @@ After the Soak Tests completed, a performance degradation was revealed for commi
 
 Snapshots of the Soak Test run are available [on the gh-pages branch](https://github.com/{{ env.GITHUB_REPOSITORY }}/tree/gh-pages/soak-tests/snapshots/{{ sha }}). These are the snapshots for the violating commit:
 
-![CPU Load Soak Test SnapShot Image](https://github.com/{{ env.GITHUB_REPOSITORY }}/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-cpu-load-soak-{{ env.GITHUB_RUN_ID }}.png?raw=true)
-![Total Memory Soak Test SnapShot Image](https://github.com/{{ env.GITHUB_REPOSITORY }}/blob/gh-pages/soak-tests/snapshots/{{ sha }}/{{ env.APP_PLATFORM }}-{{ env.INSTRUMENTATION_TYPE }}-total-memory-soak-{{ env.GITHUB_RUN_ID }}.png?raw=true)
+![CPU Load Soak Test SnapShot Image](https://github.com/{{ env.GITHUB_REPOSITORY }}/blob/gh-pages/soak-tests/snapshots/commits/{{ sha }}/runs/{{ env.GITHUB_RUN_ID }}/{{ env.APP_PLATFORM }}/{{ env.INSTRUMENTATION_TYPE }}-cpu-load.png?raw=true)
+![Total Memory Soak Test SnapShot Image](https://github.com/{{ env.GITHUB_REPOSITORY }}/blob/gh-pages/soak-tests/snapshots/commits/{{ sha }}/runs/{{ env.GITHUB_RUN_ID }}/{{ env.APP_PLATFORM }}/{{ env.INSTRUMENTATION_TYPE }}-total-memory.png?raw=true)
 
 The threshold violation should also be noticeable on [our graph of Soak Test average results per commit](https://{{ repo.owner }}.github.io/{{ repo.repo }}/soak-tests/per-commit-overall-results/index.html).

@@ -32,8 +32,8 @@ def parse_args():
         required=True,
         type=int,
         help="""
-        The duration of the performance test, which is used to determine the
-        start of metrics to include in the snapshots.
+        The duration of the performance test. Used as the starting point for
+        determining which metrics to include in the performance test results.
 
         Examples:
 

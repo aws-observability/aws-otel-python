@@ -22,8 +22,8 @@ env:
   AWS_DEFAULT_REGION: us-east-1
   DEFAULT_TEST_DURATION_MINUTES: 300
   HOSTMETRICS_INTERVAL_SECS: 600
-  CPU_LOAD_THRESHOLD: 71
-  TOTAL_MEMORY_THRESHOLD: 2147483648
+  CPU_LOAD_THRESHOLD: 75
+  TOTAL_MEMORY_THRESHOLD: 2684354560 # 2.5 GiB
   MAX_BENCHMARKS_TO_KEEP: 100
   # TODO: We might be able to adapt the "Soak Tests" to be "Overhead Tests".
   # This means monitoring the Sample App's performance using high levels of TPS
@@ -106,7 +106,7 @@ jobs:
           repository: open-telemetry/opentelemetry-python-contrib
           path: ${{ env.APP_PATH }}/opentelemetry-python-contrib
 
-    # MARK: - Build and Push Sample App
+    # MARK: - Uniquely identify this Sample App environment
 
       - name: Create unique combination using matrix + commit parameters
         run: |
@@ -181,13 +181,13 @@ jobs:
             --instrumentation-type ${{ matrix.instrumentation-type }} \
             --max-benchmarks-to-keep ${{ env.MAX_BENCHMARKS_TO_KEEP }} \
             --github-repository ${GITHUB_REPOSITORY}
-          echo "::warning::Checkout Snapshots at this link: https://github.com/${GITHUB_REPOSITORY}/blob/gh-pages/soak-tests/snapshots/${{ env.TARGET_SHA }}";
+          echo "::warning::Checkout Snapshots at this link: https://github.com/${GITHUB_REPOSITORY}/blob/gh-pages/soak-tests/snapshots/commits/${{ env.TARGET_SHA }}/runs/${GITHUB_RUN_ID}/${{ matrix.app-platform }}";
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com";
           git config user.name "GitHub Actions";
           git fetch;
           git checkout gh-pages;
-          git add soak-tests/snapshots;
-          git commit -m "Adding Soak Tests Snapshots from ${{ env.TARGET_SHA }}";
+          git add soak-tests/snapshots/commits;
+          git commit -m "Soak Test Snapshots from ${{ env.TARGET_SHA }} - ${GITHUB_RUN_ID}";
           git push;
           git checkout main;
       - name: Prepare Performance Test results as JSON output
