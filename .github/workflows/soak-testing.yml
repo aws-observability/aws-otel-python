@@ -15,7 +15,7 @@ on:
         required: true
         default: 300
   schedule:
-    - cron: '0 */24 * * *'
+    - cron: '0 15 * * *'
 env:
   # NOTE: The configuration of `APP_PROCESS_EXECUTABLE_NAME` is repo dependent
   APP_PROCESS_EXECUTABLE_NAME: python3
@@ -224,6 +224,7 @@ jobs:
             --instrumentation-type ${{ matrix.instrumentation-type }} \
             --max-benchmarks-to-keep ${{ env.MAX_BENCHMARKS_TO_KEEP }} \
             --github-repository ${GITHUB_REPOSITORY}
+          echo "::warning::Checkout Snapshots at this link: https://github.com/${GITHUB_REPOSITORY}/blob/gh-pages/soak-tests/snapshots/${{ env.TARGET_SHA }}";
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com";
           git config user.name "GitHub Actions";
           git fetch;

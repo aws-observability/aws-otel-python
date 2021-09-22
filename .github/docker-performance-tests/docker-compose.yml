@@ -38,7 +38,7 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES=service.name=aws-otel-integ-test
       - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel:4317
     ports:
-      - '8080:8080'
+      - '${LISTEN_ADDRESS_PORT}:${LISTEN_ADDRESS_PORT}'
 
   load-generator:
     build:
