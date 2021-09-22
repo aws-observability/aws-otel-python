@@ -76,16 +76,17 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--image-suffix",
+        "--matrix-commit-combo",
         required=True,
         help="""
-        The image suffix which uniquely defines this Sample app by its platform
-        used, its instrumentation type, and the commit SHA from which it was
-        built. Used to create a unique name for the Performance Test Alarms.
+        The matrix + commit combination which uniquely defines this Sample app
+        by its platform used, its instrumentation type, and the commit SHA from
+        which it was built. Used to create a unique name for the Performance
+        Test Alarms.
 
         Examples:
 
-            --image-suffix=flask-auto-12345abcdef38e38678a59da0911c9abcde12345
+            --matrix-commit-combo=flask-auto-12345abcdef38e38678a59da0911c9abcde12345
         """,
     )
 
@@ -132,7 +133,7 @@ if __name__ == "__main__":
         aws_client = boto3.client("cloudwatch")
 
         unique_alarm_name_component = (
-            f"{args.image_suffix}-{args.github_run_id}"
+            f"{args.matrix_commit_combo}-{args.github_run_id}"
         )
 
         cpu_load_alarm_name = f"{CPU_LOAD_ALARM_NAME_PREFIX} ({unique_alarm_name_component}) Sample App"

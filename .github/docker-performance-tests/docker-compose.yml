@@ -13,7 +13,7 @@ services:
       - HOSTMETRICS_INTERVAL_SECS
       - LOG_GROUP_NAME
       - LOGS_NAMESPACE
-      - IMAGE_SUFFIX
+      - MATRIX_COMMIT_COMBO
       - APP_PROCESS_COMMAND_LINE_DIMENSION_VALUE
       - APP_PROCESS_EXECUTABLE_NAME
     volumes:
@@ -26,7 +26,8 @@ services:
     user: "${UID}:${GID}"
 
   app:
-    image: ${APP_IMAGE}
+    build:
+      context: ../../${APP_PATH}
     environment:
       - INSTANCE_ID
       - LISTEN_ADDRESS=0.0.0.0:${LISTEN_ADDRESS_PORT}
@@ -66,7 +67,7 @@ services:
       - CPU_LOAD_THRESHOLD
       - TOTAL_MEMORY_THRESHOLD
       - GITHUB_RUN_ID
-      - IMAGE_SUFFIX
+      - MATRIX_COMMIT_COMBO
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
