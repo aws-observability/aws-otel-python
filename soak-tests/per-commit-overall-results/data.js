@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1633982771636,
+  "lastUpdate": 1633982776817,
   "repoUrl": "https://github.com/aws-observability/aws-otel-python",
   "entries": {
     "Soak Test Results - sample-app-flask-none": [
@@ -707,6 +707,38 @@ window.BENCHMARK_DATA = {
           {
             "name": "Soak Test Average Virtual Memory Used",
             "value": 1697.4307291666667,
+            "unit": "Megabytes"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "(Eliseo) Nathaniel Ruiz Nowell",
+            "username": "NathanielRN",
+            "email": "enowell@amazon.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "f7374acf02756253467af2fdefe9b17b54ef077e",
+          "message": "Increase points to alarm for memory usage poll (#36)",
+          "timestamp": "2021-10-11T02:51:33Z",
+          "url": "https://github.com/aws-observability/aws-otel-python/commit/f7374acf02756253467af2fdefe9b17b54ef077e"
+        },
+        "date": 1633982776333,
+        "tool": "custombenchmark",
+        "benches": [
+          {
+            "name": "Soak Test Average CPU Load",
+            "value": 70.638908045977,
+            "unit": "Percent"
+          },
+          {
+            "name": "Soak Test Average Virtual Memory Used",
+            "value": 1923.4424479166667,
             "unit": "Megabytes"
           }
         ]
