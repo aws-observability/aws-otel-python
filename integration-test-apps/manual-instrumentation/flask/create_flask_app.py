@@ -10,7 +10,7 @@ import requests
 from flask import Flask, session
 import logging
 from opentelemetry import trace
-from opentelemetry.aws.propagators.aws_xray_propagator import (
+from opentelemetry.propagators.aws.aws_xray_propagator import (
     TRACE_ID_DELIMITER,
     TRACE_ID_FIRST_PART_LENGTH,
     TRACE_ID_VERSION,
