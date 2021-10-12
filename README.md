@@ -46,6 +46,7 @@ following links.
 - [OpenTelemetry Python Core GitHub](https://github.com/open-telemetry/opentelemetry-python)
 - [OpenTelemetry Python Contrib GitHub](https://github.com/open-telemetry/opentelemetry-python-contrib)
 - [AWS OpenTelemetry Python SDK Extension Package](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/sdk-extension/opentelemetry-sdk-extension-aws)
+- [AWS OpenTelemetry Python X-Ray Propagator Package](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/propagator/opentelemetry-propagator-aws-xray)
 - [AWS Distro for OpenTelemetry](https://aws-otel.github.io/)
 
 ## Security

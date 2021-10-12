@@ -19,12 +19,13 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+# AWS X-Ray Propagator Components
+
+from opentelemetry.propagators.aws import AwsXRayPropagator
+
 # AWS X-Ray SDK Extension Components
 
 from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
-from opentelemetry.sdk.extension.aws.trace.propagation.aws_xray_format import (
-    AwsXRayFormat,
-)
 # from opentelemetry.sdk.resources import get_aggregated_resources
 # from opentelemetry.sdk.extension.aws.resource.ec2 import (
 #     AwsEc2ResourceDetector,
@@ -37,7 +38,7 @@ from create_flask_app import app, get_flask_app_run_args
 # Setup AWS X-Ray Propagator
 
 # Propagators can be set using environment variable: OTEL_PROPAGATORS = xray
-propagate.set_global_textmap(AwsXRayFormat())
+propagate.set_global_textmap(AwsXRayPropagator())
 
 # Setup Tracer
 

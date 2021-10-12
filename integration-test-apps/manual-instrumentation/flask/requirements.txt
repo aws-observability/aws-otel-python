@@ -10,6 +10,7 @@ flask
 ./opentelemetry-python-core/exporter/opentelemetry-exporter-otlp-proto-grpc
 ./opentelemetry-python-core/exporter/opentelemetry-exporter-otlp
 ./opentelemetry-python-contrib/sdk-extension/opentelemetry-sdk-extension-aws
+./opentelemetry-python-contrib/propagator/opentelemetry-propagator-aws-xray
 ./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-botocore
 ./opentelemetry-python-contrib/util/opentelemetry-util-http
 ./opentelemetry-python-contrib/instrumentation/opentelemetry-instrumentation-requests
