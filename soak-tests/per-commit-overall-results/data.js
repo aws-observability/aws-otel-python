@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1633982776817,
+  "lastUpdate": 1634155843233,
   "repoUrl": "https://github.com/aws-observability/aws-otel-python",
   "entries": {
     "Soak Test Results - sample-app-flask-none": [
@@ -255,6 +255,38 @@ window.BENCHMARK_DATA = {
           {
             "name": "Soak Test Average Virtual Memory Used",
             "value": 1213.9490840517242,
+            "unit": "Megabytes"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "(Eliseo) Nathaniel Ruiz Nowell",
+            "username": "NathanielRN",
+            "email": "enowell@amazon.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "98e92fa128e29709b4f13156427ebe924b04d4b9",
+          "message": "Fix X-Ray propagators import in manual app (#39)",
+          "timestamp": "2021-10-12T23:31:24Z",
+          "url": "https://github.com/aws-observability/aws-otel-python/commit/98e92fa128e29709b4f13156427ebe924b04d4b9"
+        },
+        "date": 1634155842792,
+        "tool": "custombenchmark",
+        "benches": [
+          {
+            "name": "Soak Test Average CPU Load",
+            "value": 69.89300595238095,
+            "unit": "Percent"
+          },
+          {
+            "name": "Soak Test Average Virtual Memory Used",
+            "value": 1220.49609375,
             "unit": "Megabytes"
           }
         ]
