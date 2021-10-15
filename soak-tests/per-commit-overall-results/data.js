@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1634328370784,
+  "lastUpdate": 1634328374253,
   "repoUrl": "https://github.com/aws-observability/aws-otel-python",
   "entries": {
     "Soak Test Results - sample-app-flask-none": [
@@ -867,6 +867,38 @@ window.BENCHMARK_DATA = {
           {
             "name": "Soak Test Average Virtual Memory Used",
             "value": 1691.0467403017242,
+            "unit": "Megabytes"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "(Eliseo) Nathaniel Ruiz Nowell",
+            "username": "NathanielRN",
+            "email": "enowell@amazon.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "1ff73d15374f16793ed91c0cbc8ec209d05b87a3",
+          "message": "Update auto integ test app for new propagator pkg (#40)",
+          "timestamp": "2021-10-15T04:24:56Z",
+          "url": "https://github.com/aws-observability/aws-otel-python/commit/1ff73d15374f16793ed91c0cbc8ec209d05b87a3"
+        },
+        "date": 1634328373802,
+        "tool": "custombenchmark",
+        "benches": [
+          {
+            "name": "Soak Test Average CPU Load",
+            "value": 70.05333333333334,
+            "unit": "Percent"
+          },
+          {
+            "name": "Soak Test Average Virtual Memory Used",
+            "value": 1194.8641927083333,
             "unit": "Megabytes"
           }
         ]
