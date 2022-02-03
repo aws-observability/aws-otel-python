@@ -1,0 +1,8 @@
+boto3
+requests
+fastapi
+uvicorn
+
+opentelemetry-distro[otlp] # also installs opentelemetry-exporter-otlp
+opentelemetry-propagator-aws-xray
+opentelemetry-sdk-extension-aws

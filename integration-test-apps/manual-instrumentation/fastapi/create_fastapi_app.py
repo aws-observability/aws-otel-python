@@ -31,9 +31,9 @@ DIMENSION_API_NAME = 'apiName'
 DIMENSION_STATUS_CODE = 'statusCode'
 REQUEST_START_TIME = 'requestStartTime'
 
-# Setup Flask App
+# Setup FastAPI App
 
-app = FastAPI()
+app = FastAPI(title=__name__)
 
 # Setup Response Model
 
