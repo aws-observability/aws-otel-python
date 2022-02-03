@@ -52,7 +52,7 @@ fi
 
 # - App Platform
 APP_PLATFORM="$1"
-APP_PLATFORMS="flask"
+APP_PLATFORMS="flask fastapi"
 
 if ! [[ $APP_PLATFORMS =~ (^|[[:space:]])"$APP_PLATFORM"($|[[:space:]]) ]]; then
     echo "<APP_PLATFORM> '$APP_PLATFORM' is not valid! Select from: $APP_PLATFORMS"
