@@ -3,24 +3,35 @@
 
 import os
 import random
+import time
 
 import boto3
 import requests
 from fastapi import FastAPI
 import logging
 from pydantic import BaseModel
+from opentelemetry import trace
+from opentelemetry.propagators.aws.aws_xray_propagator import (
+    TRACE_ID_DELIMITER,
+    TRACE_ID_FIRST_PART_LENGTH,
+    TRACE_ID_VERSION,
+)
 
 if os.environ.get('SAMPLE_APP_LOG_LEVEL') == 'ERROR':
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
 
+# NOTE: (NathanielRN) Metrics is on hold.
+# See https://github.com/open-telemetry/opentelemetry-python/issues/1835
+# from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
 
 # Constants
 
-DUMMY_TRACE_ID = 0x01234567890123456789012345678901
+DIMENSION_API_NAME = 'apiName'
+DIMENSION_STATUS_CODE = 'statusCode'
 REQUEST_START_TIME = 'requestStartTime'
 
-# Setup FastAPI App
+# Setup Flask App
 
 app = FastAPI()
 
@@ -32,11 +43,11 @@ class trace_response(BaseModel):
 
 def convert_otel_trace_id_to_xray(otel_trace_id_decimal):
     otel_trace_id_hex = '{:032x}'.format(otel_trace_id_decimal)
-    x_ray_trace_id = '-'.join(
+    x_ray_trace_id = TRACE_ID_DELIMITER.join(
         [
-            '1',
-            otel_trace_id_hex[:8],
-            otel_trace_id_hex[8:],
+            TRACE_ID_VERSION,
+            otel_trace_id_hex[:TRACE_ID_FIRST_PART_LENGTH],
+            otel_trace_id_hex[TRACE_ID_FIRST_PART_LENGTH:],
         ]
     )
     return {'traceId': '{}'.format(x_ray_trace_id)}
@@ -52,7 +63,7 @@ def call_http():
     requests.get('https://aws.amazon.com/')
 
     return convert_otel_trace_id_to_xray(
-        DUMMY_TRACE_ID
+        trace.get_current_span().get_span_context().trace_id
     )
 
 
@@ -63,7 +74,7 @@ def call_aws_sdk():
     client.list_buckets()
 
     return convert_otel_trace_id_to_xray(
-        DUMMY_TRACE_ID
+        trace.get_current_span().get_span_context().trace_id
     )
 
 

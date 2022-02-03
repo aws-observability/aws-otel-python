@@ -1,0 +1,70 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+# OTel Imports
+
+from opentelemetry import propagate, trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+    OTLPSpanExporter,
+)
+
+# Instrumentation Libraries
+
+from opentelemetry.instrumentation.botocore import BotocoreInstrumentor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
+# OpenTelemetry SDK Components
+
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# AWS X-Ray Propagator Components
+
+from opentelemetry.propagators.aws import AwsXRayPropagator
+
+# AWS X-Ray SDK Extension Components
+
+from opentelemetry.sdk.extension.aws.trace import AwsXRayIdGenerator
+# from opentelemetry.sdk.resources import get_aggregated_resources
+# from opentelemetry.sdk.extension.aws.resource.ec2 import (
+#     AwsEc2ResourceDetector,
+# )
+
+# Integration Test App
+
+import uvicorn
+from create_fastapi_app import app, get_fastapi_app_run_args
+
+# Setup AWS X-Ray Propagator
+
+# Propagators can be set using environment variable: OTEL_PROPAGATORS = xray
+propagate.set_global_textmap(AwsXRayPropagator())
+
+# Setup Tracer
+
+# OTLP Exporter is configured through environment variables:
+# - OTEL_EXPORTER_OTLP_ENDPOINT
+# - OTEL_EXPORTER_OTLP_CERTIFICATE
+otlp_exporter = OTLPSpanExporter()
+span_processor = BatchSpanProcessor(otlp_exporter)
+trace.set_tracer_provider(
+    TracerProvider(
+        active_span_processor=span_processor,
+        id_generator=AwsXRayIdGenerator(),
+        # resource=get_aggregated_resources(
+        #     [
+        #         AwsEc2ResourceDetector(),
+        #     ]
+        # ),
+    )
+)
+
+# Instrument Packages
+
+BotocoreInstrumentor().instrument()
+FastAPIInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
+
+if __name__ == '__main__':
+    uvicorn.run('create_fastapi_app:app', **get_fastapi_app_run_args())
