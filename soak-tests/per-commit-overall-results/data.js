@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1647029440445,
+  "lastUpdate": 1647029455505,
   "repoUrl": "https://github.com/aws-observability/aws-otel-python",
   "entries": {
     "Soak Test Results - sample-app-flask-none": [
@@ -897,6 +897,38 @@ window.BENCHMARK_DATA = {
           {
             "name": "Soak Test Average Virtual Memory Used",
             "value": 1724.026171875,
+            "unit": "Megabytes"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Lei Wang",
+            "username": "wangzlei",
+            "email": "66336933+wangzlei@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "b29193a1af22afcb3d8233c907c466cc674af39a",
+          "message": "Fix app SSL error in integration test (#54)",
+          "timestamp": "2022-03-11T19:46:14Z",
+          "url": "https://github.com/aws-observability/aws-otel-python/commit/b29193a1af22afcb3d8233c907c466cc674af39a"
+        },
+        "date": 1647029455014,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Soak Test Average CPU Load",
+            "value": 70.20785714285714,
+            "unit": "Percent"
+          },
+          {
+            "name": "Soak Test Average Virtual Memory Used",
+            "value": 1607.7769396551723,
             "unit": "Megabytes"
           }
         ]
