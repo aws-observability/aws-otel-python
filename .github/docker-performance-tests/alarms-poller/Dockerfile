@@ -2,7 +2,7 @@ FROM python:3.9
 
 COPY . .
 
-RUN pip install docker boto3
+RUN pip install --no-cache-dir docker boto3
 
 CMD python ./poll_during_performance_tests.py --logs-namespace $LOGS_NAMESPACE \
                                               --metrics-period $HOSTMETRICS_INTERVAL_SECS \
