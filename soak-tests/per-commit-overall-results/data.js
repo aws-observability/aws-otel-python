@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1647029455505,
+  "lastUpdate": 1647634254070,
   "repoUrl": "https://github.com/aws-observability/aws-otel-python",
   "entries": {
     "Soak Test Results - sample-app-flask-none": [
@@ -479,6 +479,38 @@ window.BENCHMARK_DATA = {
           {
             "name": "Soak Test Average Virtual Memory Used",
             "value": 1202.8189655172414,
+            "unit": "Megabytes"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Pratik Raj",
+            "username": "Rajpratik71",
+            "email": "Rajpratik71@gmail.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "8a92ecfb777ca7709392b85fb3d8827dfdfab05d",
+          "message": "chore : use --no-cache-dir flag to pip in dockerfiles to save space (#47)\n\nusing --no-cache-dir flag in pip install ,make sure downloaded packages\r\nby pip don't cached on system . This is a best practice which make sure\r\nto fetch from repo instead of using local cached one . Further , in case\r\nof Docker Containers , by restricting caching , we can reduce image size.\r\nIn term of stats , it depends upon the number of python packages\r\nmultiplied by their respective size . e.g for heavy packages with a lot\r\nof dependencies it reduce a lot by don't caching pip packages.\r\n\r\nFurther , more detail information can be found at\r\n\r\nhttps://medium.com/sciforce/strategies-of-docker-images-optimization-2ca9cc5719b6\r\n\r\nSigned-off-by: Pratik Raj <rajpratik71@gmail.com>",
+          "timestamp": "2022-03-17T22:06:20Z",
+          "url": "https://github.com/aws-observability/aws-otel-python/commit/8a92ecfb777ca7709392b85fb3d8827dfdfab05d"
+        },
+        "date": 1647634253589,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Soak Test Average CPU Load",
+            "value": 71.68744047619047,
+            "unit": "Percent"
+          },
+          {
+            "name": "Soak Test Average Virtual Memory Used",
+            "value": 1320.725484913793,
             "unit": "Megabytes"
           }
         ]
