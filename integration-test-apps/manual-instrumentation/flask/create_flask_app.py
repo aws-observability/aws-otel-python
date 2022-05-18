@@ -22,7 +22,7 @@ if os.environ.get('SAMPLE_APP_LOG_LEVEL') == 'ERROR':
 
 # NOTE: (NathanielRN) Metrics is on hold.
 # See https://github.com/open-telemetry/opentelemetry-python/issues/1835
-# from setup_metrics import apiBytesSentCounter, apiLatencyRecorder
+from setup_metrics import apiBytesSentCounter, apiLatencyRecorder, apiqueueSizeChangeMetric, apitotalApiBytesSentMetric, apilastLatencyMetric
 
 # Constants
 
@@ -59,22 +59,22 @@ def mimicPayloadSize():
 
 @app.after_request
 def after_request_func(response):
-    # if request.path == "/outgoing-http-call":
-    #     apiBytesSentCounter.add(
-    #         response.calculate_content_length() + mimicPayloadSize(),
-    #         {
-    #             DIMENSION_API_NAME: request.path,
-    #             DIMENSION_STATUS_CODE: response.status_code,
-    #         },
-    #     )
+    if request.path == "/outgoing-http-call":
+        apiBytesSentCounter.add(
+            response.calculate_content_length() + mimicPayloadSize(),
+            {
+                DIMENSION_API_NAME: request.path,
+                DIMENSION_STATUS_CODE: response.status_code,
+            },
+        )
 
-    #     apiLatencyRecorder.record(
-    #         int(time.time() * 1_000) - session[REQUEST_START_TIME],
-    #         {
-    #             DIMENSION_API_NAME: request.path,
-    #             DIMENSION_STATUS_CODE: response.status_code,
-    #         },
-    #     )
+        apiLatencyRecorder.record(
+            int(time.time() * 1_000) - session[REQUEST_START_TIME],
+            {
+                DIMENSION_API_NAME: request.path,
+                DIMENSION_STATUS_CODE: response.status_code,
+            },
+        )
 
     return response
 
