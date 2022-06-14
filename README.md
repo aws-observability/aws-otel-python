@@ -17,7 +17,7 @@ An easy way for a traced application to send traces to AWS X-Ray is by using the
 
 ## Getting Started
 
-Check out the links below for information on getting started with ADOT Python SDK:
+Check out the links below for information on getting started with ADOT in Python:
 - [Tracing with Automatic Instrumentation](https://aws-otel.github.io/docs/getting-started/python-sdk/trace-auto-instr)
 - [Tracing with Manual Instrumentation](https://aws-otel.github.io/docs/getting-started/python-sdk/trace-manual-instr)
 
