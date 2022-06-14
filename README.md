@@ -1,6 +1,6 @@
-# AWS Distro for OpenTelemetry Python SDK
+# AWS Distro for OpenTelemetry Python Language
 
-AWS Distro for OpenTelemetry Python SDK (ADOT Python SDK) is a distribution of [OpenTelemetry Python](https://github.com/open-telemetry/opentelemetry-python) with components to trace applications in a format compatible with the AWS X-Ray service. This enables all the features of the OpenTelemetry project and configures its components to create traces that can be viewed in the AWS X-Ray console and allow propagation of those contexts across multiple downstream AWS services.
+This repo hosts documentation and sample apps for the ADOT Python library which provides the AWS service integrations for traces and metrics for the [OpenTelemetry Python](https://github.com/open-telemetry/opentelemetry-python) library. The library can be configured to support trace applications with the AWS X-Ray service. This enables all the features of the OpenTelemetry project and configures its components to create traces that can be viewed in the AWS X-Ray console and allow propagation of those contexts across multiple downstream AWS services.
 
 ## How it works
 
@@ -17,7 +17,7 @@ An easy way for a traced application to send traces to AWS X-Ray is by using the
 
 ## Getting Started
 
-Check out the links below for information on getting started with ADOT Python SDK:
+Check out the links below for information on getting started with ADOT in Python:
 - [Tracing with Automatic Instrumentation](https://aws-otel.github.io/docs/getting-started/python-sdk/trace-auto-instr)
 - [Tracing with Manual Instrumentation](https://aws-otel.github.io/docs/getting-started/python-sdk/trace-manual-instr)
 
