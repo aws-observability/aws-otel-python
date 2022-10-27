@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: sunday
+
+  - package-ecosystem: "pip"
+    directory: "/integration-test-apps/auto-instrumentation/flask"
+    schedule:
+      interval: "weekly"
+      day: sunday
+
+  - package-ecosystem: "pip"
+    directory: "/integration-test-apps/manual-instrumentation/flask"
+    schedule:
+      interval: "weekly"
+      day: sunday
+
+  - package-ecosystem: "pip"
+    directory: "/integration-test-apps/none-instrumentation/flask"
+    schedule:
+      interval: "weekly"
+      day: sunday
