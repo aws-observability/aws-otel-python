@@ -27,15 +27,15 @@ jobs:
       APP_PATH: integration-test-apps/${{ matrix.instrumentation-type}}-instrumentation/${{ matrix.app-platform }}
     steps:
       - name: Checkout This Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Checkout OpenTelemetry Python Core Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: ${{ matrix.instrumentation-type == 'manual' }}
         with:
           repository: open-telemetry/opentelemetry-python
           path: ${{ env.APP_PATH }}/opentelemetry-python-core
       - name: Checkout OpenTelemetry Python Contrib Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: ${{ matrix.instrumentation-type == 'manual' }}
         with:
           repository: open-telemetry/opentelemetry-python-contrib
