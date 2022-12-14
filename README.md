@@ -49,9 +49,8 @@ following links.
 - [AWS OpenTelemetry Python X-Ray Propagator Package](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/propagator/opentelemetry-propagator-aws-xray)
 - [AWS Distro for OpenTelemetry](https://aws-otel.github.io/)
 
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+## Security issue notifications
+If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public github issue.
 
 ## License
 
