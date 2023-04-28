@@ -1,4 +1,6 @@
-# AWS Distro for OpenTelemetry Python - Integration Testing App - None-instrumentation - Flask
+# AWS Distro for OpenTelemetry Python - Integration Testing App - None-instrumentation - Flask (DEPRECATED)
+
+**WARNING:** This sample app is deprecated and is no longer maintained.  Please use the [new standardized sample apps](https://github.com/aws-observability/aws-otel-community/tree/master/sample-apps).
 
 This application provides a baseline for performance testing. It has no instrumentation and so when compared against apps that do have instrumentation, it helps reveal the overhead that comes with instrumentation.
 

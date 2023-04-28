@@ -1,4 +1,6 @@
-# AWS Distro for OpenTelemetry Python - Integration Testing App - Manual instrumentation - Flask
+# AWS Distro for OpenTelemetry Python - Integration Testing App - Manual instrumentation - Flask (DEPRECATED)
+
+**WARNING:** This sample app is deprecated and is no longer maintained.  Please use the [new standardized sample apps](https://github.com/aws-observability/aws-otel-community/tree/master/sample-apps).
 
 This application validates the continual integration of manual instrumentation with the AWS Distro for OpenTelemetry Python and the AWS X-Ray back-end service. Validation is done using the [AWS Test Framework for OpenTelemetry](https://github.com/aws-observability/aws-otel-test-framework).
 

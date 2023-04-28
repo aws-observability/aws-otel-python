@@ -23,12 +23,16 @@ Check out the links below for information on getting started with ADOT in Python
 
 
 
-### Applications for integration testing - Auto-instrumentation
+### Applications for integration testing - Auto-instrumentation (DEPRECATED)
+
+**WARNING:** This sample app is deprecated and is no longer maintained.  Please use the [new standardized sample apps](https://github.com/aws-observability/aws-otel-community/tree/master/sample-apps).
 
 See an app used for [integration testing with automatic instrumentation README.md](integration-test-apps/auto-instrumentation/flask/README.md) for setup instructions.
 
 
-### Applications for integration testing - Manual instrumentation
+### Applications for integration testing - Manual instrumentation (DEPRECATED)
+
+**WARNING:** This sample app is deprecated and is no longer maintained.  Please use the [new standardized sample apps](https://github.com/aws-observability/aws-otel-community/tree/master/sample-apps).
 
 See an app used for [integration testing with manual instrumentation README.md](integration-test-apps/manual-instrumentation/flask/README.md) for setup instructions.
 
