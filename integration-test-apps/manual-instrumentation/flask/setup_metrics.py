@@ -21,23 +21,46 @@ meter = metrics.get_meter("aws-otel", "1.0")
 
 # Setup Metric Components
 
-apiBytesSentMetricName = "apiBytesSent"
 latencyMetricName = "latency"
+apiBytesSentMetricName = "apiBytesSent"
+totalApiBytesSentMetricName = "totalApiBytesSent"
+lastLatencyMetricName = "lastLatency"
+queueSizeChangeMetricName = "queueSizeChange"
+actualQueueSizeMetricName = "actualQueueSize"
 
 if "INSTANCE_ID" in os.environ:
     instanceId = os.environ["INSTANCE_ID"]
     if not instanceId.strip() == "":
         latencyMetricName += "_" + instanceId
         apiBytesSentMetricName += "_" + instanceId
+        totalApiBytesSentMetricName += "_" + instanceId
+        lastLatencyMetricName += "_" + instanceId
+        queueSizeChangeMetricName += "_" + instanceId
+        actualQueueSizeMetricName += "_" + instanceId
 
 apiBytesSentCounter = meter.create_counter(
     apiBytesSentMetricName, "API request load sent in bytes", "one", int
 )
 
-apiLatencyRecorder = meter.create_valuerecorder(
+apiLatencyRecorder = meter.create_histogram(
     latencyMetricName, "API latency time", "ms", int
 )
 
+apiqueueSizeChangeMetric = meter.create_up_down_counter(
+    queueSizeChangeMetricName, "Queue Size change", "one", int
+)
+
+apitotalApiBytesSentMetric = meter.create_observable_gauge(
+    totalApiBytesSentMetricName, "Total API request load sent in bytes", "one", int
+)
+
+apilastLatencyMetric = meter.create_observable_gauge(
+    lastLatencyMetricName, "The last API latency observed at collection interval", "ms", int
+)
+
+apiactualQueueSizeMetric = meter.create_observable_gauge(
+    actualQueueSizeMetricName, "The actual queue size observed at collection interval", "one", int
+)
 # Start Metric Pipeline
 
 # Exporter to export metrics to the console
