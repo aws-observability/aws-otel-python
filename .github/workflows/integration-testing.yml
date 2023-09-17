@@ -65,7 +65,7 @@ jobs:
         run: |
           echo "APP_IMAGE=ghcr.io/${{ github.repository }}/sample-app-${{ matrix.app-platform }}-${{ matrix.instrumentation-type }}:${{ github.sha }}" | tee --append $GITHUB_ENV;
       - name: Build and Push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           push: ${{ github.event.inputs.push == 'true' || 
             github.event_name == 'schedule' ||
