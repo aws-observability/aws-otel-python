@@ -2,6 +2,8 @@
 
 This repo hosts documentation and sample apps for the ADOT Python library which provides the AWS service integrations for traces and metrics for the [OpenTelemetry Python](https://github.com/open-telemetry/opentelemetry-python) library. The library can be configured to support trace applications with the AWS X-Ray service. This enables all the features of the OpenTelemetry project and configures its components to create traces that can be viewed in the AWS X-Ray console and allow propagation of those contexts across multiple downstream AWS services.
 
+ADOT is also now generally available for Python metrics. 
+
 ## How it works
 
 OpenTelemetry is a project maintained by the Cloud Native Computing Foundation which provides open source APIs, libraries, and agents to collect distributed traces and metrics for application monitoring.
