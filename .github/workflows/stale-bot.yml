@@ -12,6 +12,10 @@
 # permissions and limitations under the License.
 
 name: 'Close stale issues and PR'
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
 on:
   schedule:
     - cron: '0 20 * * SUN' # every Sunday at 20 am UTC: PST 0:00 AM "
